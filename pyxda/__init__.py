@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding=utf-8
-
 ##############################################################################
 #
 # pyxda             X-ray Data Analysis Library
