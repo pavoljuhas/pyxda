@@ -28,9 +28,11 @@ class Display(object):
             self._appendTools(imgPlot)
             plot.title = title
             plot.bgcolor = 'white'
+            
         else:
             plot.data.set_data('imagedata', image)
             plot.title = title
+            
         plot.aspect_ratio = float(image.shape[1]) / image.shape[0]
         plot.invalidate_draw()
         return plot

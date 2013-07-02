@@ -30,26 +30,30 @@ class PyXDA(HasTraits):
         return
     
     def initDisplay(self):
-        #TODO: Make it not hard coded
+        #This function initializes the blank window
         self.display = Display()
-        
-        dirpath = 'C:\\Users\\Mark\\Images\\1208NSLSX17A_LiRh2O4\\'
-        self.images = getTiffImages(dirpath)
-
-        #pic = np.zeros((2048, 2048))
-        pic = self.images.values()[0].data
+        pic = np.zeros((2048, 2048))
 
         self.add_trait('pic', Instance(np.ndarray, pic))
-        self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, 
-                                             '1/10'+self.images.keys()[0], None)))
+        self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, 'PyXPD', None)))
+        
         return
-
+    
+    def plotDirectory(self, dirPath):
+        #This function loads a directory from parameter and plots the first
+        #tiff image in the list
+        self.images = getTiffImages(dirPath)
+        
+        pic = self.images.values()[0].data
+        self.display.plotImage(pic, str(1)+'/10 '+self.images.keys()[0], self.imageplot)
+        
     def initControlPanel(self):
         #TODO: Should NOT pass itself to control panel
         self.add_trait('panel', Instance(ControlPanel,
                                     ControlPanel(display=self.display, pyxda=self)))
         return
-
+    
+    #This is the main window of PyXDA
     view = View(HSplit(Item('imageplot', editor=ComponentEditor()),
                        Item('panel', style="custom"),
                        show_labels=False
@@ -57,12 +61,14 @@ class PyXDA(HasTraits):
                 resizable=True,
                 height=0.75, width=0.75,
                 handler=PyXDAHandler(),
-                buttons=NoButtons)
+                buttons=NoButtons,
+                title = 'PyXDA'
+            )
 
     def updatePlot(self, index):
-        #TODO: Should definitely be modified.
+        #Replots a new image at given index
         pic = self.images.values()[index].data
-        self.display.plotImage(pic, str(index+1)+'/10'+self.images.keys()[index], self.imageplot)
+        self.display.plotImage(pic, str(index+1)+'/10 '+self.images.keys()[index], self.imageplot)
 
 if __name__ == '__main__':
     PyXDA().configure_traits()
