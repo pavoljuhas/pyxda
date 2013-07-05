@@ -1,5 +1,4 @@
 from chaco.tools.api import PanTool, ZoomTool
-from image import Image
 from chaco.api import ArrayPlotData, Plot, jet
 from enable.api import BaseTool, KeySpec
 

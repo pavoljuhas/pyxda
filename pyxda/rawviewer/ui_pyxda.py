@@ -1,7 +1,6 @@
-from loadimages import getTiffImages
 from enthought.traits.api import HasTraits, Instance
 from display import Display
-from enthought.traits.ui.api import View,Item, Group, HSplit, Handler
+from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit
 from traits.api import *
 from enable.api import ComponentEditor,Component
 from enthought.traits.ui.menu import NoButtons
@@ -10,26 +9,29 @@ from chaco.api import ArrayPlotData, Plot, jet, GridContainer
 import pyxda as px
 from handler import PyXDAHandler
 
-class Camera(HasTraits):
-    gain = Enum(1, 2, 3, )
-    exposure = CInt(10, label="Exposure")
-
 class ControlPanel(HasTraits):
     '''Contains tools to interact with image.'''
     
     display = Display()
+    dirpath = Str()
     load_data = Button('Load Data')
-    camera = Instance(Camera)
+    left_arrow = Button('<')
+    right_arrow = Button('>')
 
     view = View(
             Group(
-                Item('load_data', show_label=False),
-                Item('camera', style='custom', show_label=False)
-                )
-            )
-
-    def _camera_default(self):
-        self.camera = Camera()
+                VSplit(
+                    HSplit(
+                        Item('dirpath'),
+                        Item('load_data', show_label=False)
+                          ),
+                    HSplit(
+                        Item('left_arrow', show_label = False), 
+                        Item('right_arrow', show_label = False)
+                          )
+                      )
+                 )
+               )
 
 class PyXDAUI(HasTraits):
     
@@ -41,6 +43,9 @@ class PyXDAUI(HasTraits):
         self.add_trait('pyxda', px.PyXDA())
         self.add_trait('panel', self.pyxda.panel)
         self.add_trait('display', self.pyxda.display)
+        self.pyxda.startProcessJob()
+        self.pyxda.loadimage.start()
+
 
         self.imagecontainer = Instance(Component)
         self.updateImageContainer()
@@ -66,19 +71,28 @@ class PyXDAUI(HasTraits):
         pic = self.pyxda.images.values()[0].data
         title = self.pyxda.images.keys()[0]
         self.pyxda.imageplot = self.pyxda.plotData(pic, title)
-        
        #self.updateImageContainer()
-
         return
-  
-    # TODO: whatever the panel's name is
+
     @on_trait_change('panel.load_data', post_init=True)
     def _load_data_fired(self):
         '''Loads data for display.'''
-        # TODO: Needs to be updated for scaleability.
-        dirpath = '/Users/Mike/Downloads/1208NSLSX17A_LiRh2O4/'
-        self.pyxda.images = getTiffImages(dirpath)
+        # TODO: Change load image calls.
+        self.pyxda.loadimage.dirpath = '/Users/Mike/Downloads/1208NSLSX17A_LiRh2O4/'
+        #self.pyxda.loadimage.dirpath = '/Users/Mike/GSAS-II/Exercises/images/'
+        #self.pyxda.jobqueue.put(['processexist'])
+        return
 
+    @on_trait_change('panel.left_arrow', post_init=True)
+    def _left_arrow_fired(self):
+        #TODO: Define Left Arrow
+        self.pyxda.jobqueue.put(['updatecache', ['left']])
+        return
+    
+    @on_trait_change('panel.right_arrow', post_init=True)
+    def _right_arrow_fired(self):
+        #TODO: Define Right Arrow
+        self.pyxda.jobqueue.put(['updatecache', ['right']])
         return
 
 
