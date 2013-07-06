@@ -1,6 +1,6 @@
 from enthought.traits.api import HasTraits,Int,Float,Str,Property, on_trait_change, Directory
 from enthought.traits.api import Range,Array, Instance
-from enthought.traits.ui.api import View,Item,Label, HSplit, Handler
+from enthought.traits.ui.api import View,Item,Label, HSplit, VGroup, Handler
 from enthought.traits.ui.menu import NoButtons
 from chaco.api import Plot, ArrayPlotData
 from chaco import default_colors as dc
@@ -32,10 +32,17 @@ class PyXDA(HasTraits):
     def initDisplay(self):
         #This function initializes the blank window
         self.display = Display()
+        self.display2 = Display()
         pic = np.zeros((2048, 2048))
 
         self.add_trait('pic', Instance(np.ndarray, pic))
-        self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, 'PyXPD', None)))
+        self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, '2D Image', None)))
+        self.imageplot.x_axis.visible = False
+        self.imageplot.y_axis.visible = False
+        
+        self.add_trait('imageplot2', Instance(Plot, self.display2.plotImage(self.pic, '', None)))
+        self.imageplot2.x_axis.visible = False
+        self.imageplot2.y_axis.visible = False
         
         return
     
@@ -55,14 +62,18 @@ class PyXDA(HasTraits):
     
     #This is the main window of PyXDA
     view = View(HSplit(Item('imageplot', editor=ComponentEditor()),
-                       Item('panel', style="custom"),
+                       VGroup(
+                           Item('panel', style="custom"),
+                           Item('imageplot2', editor = ComponentEditor()),
+                           show_labels= False
+                       ),
                        show_labels=False
                       ),
                 resizable=True,
                 height=0.75, width=0.75,
                 handler=PyXDAHandler(),
                 buttons=NoButtons,
-                title = 'PyXDA'
+                title = 'Raw Viewer'
             )
 
     def updatePlot(self, index):

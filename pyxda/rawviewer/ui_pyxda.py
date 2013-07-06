@@ -3,6 +3,8 @@ from enthought.traits.api import HasTraits, Instance, Directory
 from display import Display
 from enthought.traits.ui.api import View,Item, Group, HGroup, HSplit, VSplit, Handler
 from traits.api import *
+from enthought.traits.ui.key_bindings \
+    import KeyBinding, KeyBindings
 
 class ControlPanel(HasTraits):
     '''Contains tools to interact with image.'''
@@ -10,53 +12,62 @@ class ControlPanel(HasTraits):
     #Traits for this class
     display = Display()
     dirPath = Directory()
-    load_data = Button('LOAD')
     left_arrow = Button('<')
     right_arrow = Button('>')
-    numViewers = Enum('One View', 'Nine Views')
-    message = Str()
+    reset = Button('Reset')
+    quality = Button('Quality Assessment')
+    message = Str('One')
 
     index = 0 #Used to keep track of images
     
     #GUI for this panel
     view = View(
                Group(
-                   HGroup(
-                       Item('dirPath', label = "Folder Path"),
-                       Item('load_data', show_label=False)
-                   ),
+                   Item('dirPath', label = "Folder Path"),
+                   Item('message'),
                    HGroup(
                        Item('left_arrow', label = "Image"), 
                        Item('right_arrow', show_label = False),
+                       Item('reset', show_label = False)
                    ),
-                   Item('numViewers', label = "Views"),
+                   Item('quality', show_label = False),
                    show_border = True,
                    label = 'Controls'
                )
            )
     
     #Actions to be executed on events
-    def _load_data_fired(self):
+    @on_trait_change('dirPath')
+    def _load_data(self):
         '''Loads data for display.'''
         # TODO: Needs to be updated for scaleability.
-        self.pyxda.plotDirectory(self.dirPath)
+        try:
+            self.pyxda.plotDirectory(self.dirPath)
+        except:
+            pass
         
     def _left_arrow_fired(self):
         '''Changes index being displayed backwards''' 
-        if self.index>0:
-            self.index = self.index-1
-            self.pyxda.updatePlot(self.index)
+        try:
+            if self.index>0:
+                self.index = self.index-1
+                self.pyxda.updatePlot(self.index)
+        except:
+            pass
             
         return
             
     def _right_arrow_fired(self):
         '''Changes index being displayed forwards'''
-        if self.index<9:
-            self.index = self.index+1
-            self.pyxda.updatePlot(self.index)
-            
+        try:
+            if self.index<9:
+                self.index = self.index+1
+                self.pyxda.updatePlot(self.index)
+        except:
+             pass  
+                  
         return
-        
+                       
 if __name__ == '__main__':
     panel = ControlPanel(display=Display(), test = 14)
     panel.configure_traits()
