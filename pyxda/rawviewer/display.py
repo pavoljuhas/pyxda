@@ -1,7 +1,18 @@
-from chaco.tools.api import PanTool, ZoomTool
-from chaco.api import ArrayPlotData, Plot, jet
+from chaco.tools.api import PanTool, ZoomTool, LineInspector
+from chaco.api import ArrayPlotData, Plot, jet, BaseTool
 from enable.api import BaseTool, KeySpec
 
+
+class ImageIndexTool(BaseTool):
+        
+    def normal_left_down(self, event):
+        self._update_plots(event)
+
+    def _update_plots(self, event):
+        plot = self.component
+        ndx = plot.map_index((event.x, event.y),
+                                 threshold=5.0, index_only=True)
+        print ndx
 
 class Display(object):
 
@@ -34,9 +45,29 @@ class Display(object):
     def _appendTools(self, plot):
         '''append xy position, zoom, pan tools to plot
         '''
-        # TODO: Add ROI tool.
         plot.tools.append(PanTool(plot))
         zoom = ZoomTool(component=plot, tool_mode="box", always_on=False)
         plot.overlays.append(zoom)
         plot.zoom = zoom
+        xcursor = LineInspector(plot, axis="index_x", color="white",
+            inspect_mode="indexed", write_metadata=True, is_listener=False)
+        ycursor = LineInspector(plot, axis="index_y", color="white",
+            inspect_mode="indexed", write_metadata=True, is_listener=False)
+        plot.overlays.append(xcursor)
+        plot.overlays.append(ycursor)
+        plot.tools.append(ImageIndexTool(plot))
+
         return
+
+
+    
+    class ImageIndexTool(BaseTool):
+        
+        def normal_left_down(self, event):
+            self._update_plots(event)
+
+        def _update_plots(self, event):
+            plot = self.component
+            ndx = plot.map_index((event.x, event.y),
+                                 threshold=5.0, index_only=True)
+            print ndx

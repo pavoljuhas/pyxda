@@ -1,6 +1,7 @@
-from enthought.traits.api import HasTraits, Instance
+from enthought.traits.api import HasTraits, Instance, Directory
 from display import Display
-from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit
+from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit, \
+                    HGroup, VGroup
 from traits.api import *
 from enable.api import ComponentEditor,Component
 from enthought.traits.ui.menu import NoButtons
@@ -13,47 +14,51 @@ class ControlPanel(HasTraits):
     '''Contains tools to interact with image.'''
     
     display = Display()
-    dirpath = Str()
-    load_data = Button('Load Data')
+    dirpath = Directory()
     left_arrow = Button('<')
     right_arrow = Button('>')
+    reset = Button('Reset')
+    quality = Button('Quality Assessment')
+    message = Str('One')
 
     view = View(
-            Group(
-                VSplit(
-                    HSplit(
-                        Item('dirpath'),
-                        Item('load_data', show_label=False)
-                          ),
-                    HSplit(
-                        Item('left_arrow', show_label = False), 
-                        Item('right_arrow', show_label = False)
-                          )
-                      )
-                 )
+               Group(
+                   Item('dirpath', label = "Folder Path"),
+                   Item('message'),
+                   HGroup(
+                       Item('left_arrow', label = "Image"), 
+                       Item('right_arrow', show_label = False),
+                       Item('reset', show_label = False)
+                   ),
+                   Item('quality', show_label = False),
+                   show_border = True,
+                   label = 'Controls'
                )
+           )
 
 class PyXDAUI(HasTraits):
     
-    imageplot = Instance(Plot)
-
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(PyXDAUI, self).__init__()
-        #TODO: Initializes the UI
         self.add_trait('pyxda', px.PyXDA())
         self.add_trait('panel', self.pyxda.panel)
         self.add_trait('display', self.pyxda.display)
+        self.add_trait('cmap', self.pyxda.cmap)
         self.pyxda.startProcessJob()
         self.pyxda.loadimage.start()
 
-
+        self.panel.sync_trait('dirpath', self.pyxda.loadimage, mutual=False)
+        self.add_trait('dirpath', Directory())
+        #self.pyxda.jobqueue.put(['processexist'])
         self.imagecontainer = Instance(Component)
         self.updateImageContainer()
 
     # TODO: Adjust view
     view = View(HSplit(Item('imagecontainer', editor=ComponentEditor(),
                             dock='vertical'),
-                       Item('panel', style="custom"),
+                       VGroup(
+                            Item('panel', style="custom"),
+                            Item('cmap', editor=ComponentEditor())),
                        show_labels=False,
                       ),
                 resizable=True,
@@ -64,37 +69,34 @@ class PyXDAUI(HasTraits):
     #############################
     # UI Action Handling
     #############################
-
-    @on_trait_change('pyxda.images')
-    def imagesChanged(self):
-        #TODO: Should definitely be modified.
-        pic = self.pyxda.images.values()[0].data
-        title = self.pyxda.images.keys()[0]
-        self.pyxda.imageplot = self.pyxda.plotData(pic, title)
-       #self.updateImageContainer()
-        return
-
-    @on_trait_change('panel.load_data', post_init=True)
+    
+    @on_trait_change('dirpath', post_init=True)
     def _load_data_fired(self):
         '''Loads data for display.'''
         # TODO: Change load image calls.
-        self.pyxda.loadimage.dirpath = '/Users/Mike/Downloads/1208NSLSX17A_LiRh2O4/'
+        #self.pyxda.loadimage.dirpath = dirpath
+        #'/Users/Mike/Downloads/1208NSLSX17A_LiRh2O4/'
         #self.pyxda.loadimage.dirpath = '/Users/Mike/GSAS-II/Exercises/images/'
-        #self.pyxda.jobqueue.put(['processexist'])
         return
+    
+
 
     @on_trait_change('panel.left_arrow', post_init=True)
     def _left_arrow_fired(self):
-        #TODO: Define Left Arrow
         self.pyxda.jobqueue.put(['updatecache', ['left']])
         return
     
     @on_trait_change('panel.right_arrow', post_init=True)
     def _right_arrow_fired(self):
-        #TODO: Define Right Arrow
         self.pyxda.jobqueue.put(['updatecache', ['right']])
         return
-
+    
+    # Properly define.
+    @on_trait_change('panel.quality', post_init=True)
+    def _quality_fired(self):
+        self.pyxda.jobqueue.put(['createcmap'])
+        return
+    
 
     def updateImageContainer(self):
             

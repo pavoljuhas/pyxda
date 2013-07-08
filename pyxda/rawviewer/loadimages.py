@@ -3,17 +3,20 @@ import numpy as np
 import re
 import fabio
 import time
-from enthought.traits.api import Dict, Instance
+from enthought.traits.api import Dict, Instance, Directory, HasTraits
 import threading
 
 
-class LoadImage(threading.Thread):
+class LoadImage(HasTraits, threading.Thread):
 
-    dirpath = ''
-    filelist = []
 
     def __init__(self, queue):
         threading.Thread.__init__(self)
+        super(LoadImage, self).__init__() 
+
+        self.add_trait('dirpath', Directory())
+        self.filelist = []
+
         self.jobqueue = queue
         self.backgroundenable = False
         self.daemon=True
@@ -81,7 +84,7 @@ class LoadImage(threading.Thread):
         return fo.data
 
     def checkTime(self, tifpath):
-        if tifpath!=self.lasttifdirectory:
+        if tifpath != self.lasttifdirectory:
             self.initLive()
             flag = False
         else:
