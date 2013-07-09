@@ -3,6 +3,27 @@ from chaco.api import ArrayPlotData, Plot, jet, BaseTool
 from enable.api import BaseTool, KeySpec
 
 
+
+
+# Major library imports
+from numpy import linspace, meshgrid, pi
+from scipy.special import jn
+
+# Enthought library imports
+from enable.api import Component, ComponentEditor
+from traits.api import HasTraits, Instance
+from traitsui.api import Item, Group, View
+
+# Chaco imports
+from chaco.api import ArrayPlotData, ColorBar, HPlotContainer, jet, \
+                                 LinearMapper, Plot
+from chaco.tools.api import PanTool, RangeSelection, \
+                                       RangeSelectionOverlay, ZoomTool
+                                       
+                                       
+                                       
+
+
 class ImageIndexTool(BaseTool):
         
     def normal_left_down(self, event):
@@ -35,6 +56,19 @@ class Display(object):
             self._appendTools(imgPlot)
             plot.title = title
             plot.bgcolor = 'white'
+            
+            # Create the colorbar, handing in the appropriate range and colormap
+            colormap = plot.color_mapper
+            colorbar = ColorBar(index_mapper=LinearMapper(range=colormap.range),
+                        color_mapper=colormap,
+                        plot=plot,
+                        orientation='v',
+                        resizable='v',
+                        width=30,
+                        padding=20)
+            colorbar.padding_top = plot.padding_top
+            colorbar.padding_bottom = plot.padding_bottom
+            
         else:
             plot.data.set_data('imagedata', image)
             plot.title = title

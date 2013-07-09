@@ -12,9 +12,14 @@ import Queue
 import threading
 
 from display import Display
-from ui_pyxda import ControlPanel
 from imagecontainer import ImageContainer, ImageCache
 from loadimages import LoadImage
+
+# Major library imports
+from numpy import linspace, meshgrid, pi
+from scipy.special import jn
+
+from controlpanel import ControlPanel
 
 class PyXDA(HasTraits):
 
@@ -78,6 +83,8 @@ class PyXDA(HasTraits):
         self.add_trait('mapdata', Instance(np.ndarray, mapdata))
         self.add_trait('cmap', Instance(Plot, self.display.plotImage(self.mapdata,
                                         'CMap', None)))
+        self.cmap.x_axis.visible = False
+        self.cmap.y_axis.visible = False                            
 
     ##############################################
     # Tasks  
@@ -279,10 +286,6 @@ class PyXDA(HasTraits):
         return
 
 def main():
-    a = PDFlive()
-    a.startProcessJob()
-    a.loadimage.initLive()
-    a.loadimage.start()
     return
     
 if __name__=='__main__':
