@@ -28,7 +28,6 @@ class PyXDA(HasTraits):
         self.processing_job.daemon = True
         
         self.datalist = []
-        self.add_trait('images', {})
         self.add_trait('datalistlength', Int(0))
         
         self.on_trait_change(self.plotData, 'plotnow', dispatch='ui')
@@ -37,6 +36,7 @@ class PyXDA(HasTraits):
         self.initLoadimage()
         self.initDisplay()
         self.initControlPanel()
+        self.initCMap()
         return
     
     def initLoadimage(self):
@@ -72,6 +72,12 @@ class PyXDA(HasTraits):
         self.panel = ControlPanel(display=self.display)
         return
 
+    def initCMap(self):
+        self.hascmap = False
+        mapdata = np.zeros((25, 25))
+        self.add_trait('mapdata', Instance(np.ndarray, mapdata))
+        self.add_trait('cmap', Instance(Plot, self.display.plotImage(self.mapdata,
+                                        'CMap', None)))
 
     ##############################################
     # Tasks  
@@ -124,6 +130,9 @@ class PyXDA(HasTraits):
         n = self.imagecache.imagepos
         print 'Update Cache'
         print n
+        if n == -1:
+            print 'Cannot traverse ' + strnext
+            return
         if strnext == 'left':
             if n == 0:
                 return
@@ -203,6 +212,24 @@ class PyXDA(HasTraits):
                 self.imagecache.cache.append(temp)
                 return
         '''
+    def createCMap(self):
+        print 'Create CMap'
+        if self.datalistlength == 0 or self.hascmap == True:
+            return
+        for i, cont in enumerate(self.datalist):
+            data = self.loadimage.getImage(cont)
+            print '%d: %s........Loaded' % (i, cont.imagename)
+            self.mapdata[24-i/25, i%25] = data.sum()
+            if (i+1) % 5 == 0:
+                self.cmap = self.display.plot2DImage(self.mapdata, 
+                                        self.cmap, 'Quality Assessment')
+        self.hascmap == True
+        print 'Loading Complete'
+        return
+    # TODO
+    def resetViewer(self):
+        return
+
 
     ##############################################
     # Job Processing
@@ -240,6 +267,10 @@ class PyXDA(HasTraits):
                 self.datalistlengthadd = True
             elif jobtype == 'initcache':
                 self.initCache()
+            elif jobtype == 'createcmap':
+                self.createCMap()
+            elif jobtype == 'reset':
+                self.resetViewer()
             elif jobtype == 'processexist':
                 self.processExistingFiles()
             #self.pdfliveconfig.releasePanel()
