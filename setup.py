@@ -4,13 +4,13 @@
 """pyxda - X-ray Data Analysis Library
 """
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 # define distribution
 setup(
         name = "pyxda",
         version = "1.0",
-        packages = ["pyxda", "pyxda.tests"],
+        packages = find_packages(),
         package_data = {"pyxda" : ['tests/testdata/*']},
         author = 'Simon J.L. Billinge',
         author_email = 'sb2896@columbia.edu',
@@ -31,4 +31,8 @@ setup(
             'Programming Language :: Python :: 2.7',
             'Topic :: Scientific/Engineering :: Physics',
         ],
+        entry_points = {
+          'console_scripts': ['pyxda = pyxda.commandline:main', 
+                              'rawviewer = pyxda.rawviewer.userinterface:main'],
+      },
 )

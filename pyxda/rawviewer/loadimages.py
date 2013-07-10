@@ -1,4 +1,6 @@
-﻿import os
+﻿#!/usr/bin/env python
+
+import os
 import numpy as np
 import re
 import fabio
@@ -8,7 +10,6 @@ import threading
 
 
 class LoadImage(HasTraits, threading.Thread):
-
 
     def __init__(self, queue):
         threading.Thread.__init__(self)
@@ -21,10 +22,14 @@ class LoadImage(HasTraits, threading.Thread):
         self.backgroundenable = False
         self.daemon=True
 
-    def run(self):
-        print 'Live mode start'
+    def _performLoad(self):
         self.initLive()
         self.livemode()
+        return
+
+    def run(self):
+        print 'Live mode start'
+        self._performLoad()
         print 'Live mode stop'
         return
 
@@ -73,9 +78,11 @@ class LoadImage(HasTraits, threading.Thread):
         for i in range(len(self.filelist)):
             self.jobqueue.put(['newimage', {'imagename':self.filelist[i]}])
             print 'Image Process Sent'
+            if i == 2:
+                self.jobqueue.put(['initcache'])
             
-        self.jobqueue.put(['initcache'])
-        self.jobqueue.put(['plotdata'])
+        self.dirpath = ''
+        self._performLoad()
         return
 
     def getImage(self, imagecontainer):

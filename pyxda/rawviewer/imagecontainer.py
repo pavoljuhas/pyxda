@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 import scipy as sp
 import scipy.sparse as ssp
@@ -15,14 +17,10 @@ class ImageContainer(object):
         self.imagedata = None
         print self.imagepath
         
-    def getImageData(self):
-        fo = fabio.open(self.imagepath)
-        return fo.data
-        
 class ImageCache(object):
     
     def __init__(self):
-        self.cache = deque()
+        self.cache = deque(maxlen=3)
         self.imagepos = -1
         return
     

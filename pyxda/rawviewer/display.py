@@ -1,9 +1,15 @@
+#!/usr/bin/env python
+
 from chaco.tools.api import PanTool, ZoomTool, LineInspector
 from chaco.api import ArrayPlotData, Plot, jet, BaseTool
 from enable.api import BaseTool, KeySpec
+from traits.api import Any, HasTraits, Instance, Tuple, Int
 
 
 class ImageIndexTool(BaseTool):
+
+    callback = Any()
+    token  = Any()
         
     def normal_left_down(self, event):
         self._update_plots(event)
@@ -12,9 +18,21 @@ class ImageIndexTool(BaseTool):
         plot = self.component
         ndx = plot.map_index((event.x, event.y),
                                  threshold=5.0, index_only=True)
-        print ndx
+        if ndx and ndx[0] >= 0 and ndx[1] >= 0:
+            self.callback(self, ndx)
+            #print ndx
 
-class Display(object):
+class Display(HasTraits, object):
+
+    def __init__(self, **kwargs):
+        super(Display, self).__init__()
+        ndx = -1, -1
+        self.add_trait('ndx', Tuple(ndx))
+    
+    def _index_callback(self, tool, ndx):
+        self.ndx = ndx 
+        print 'Display'
+        print self.ndx
 
     def plot2DImage(self, data, plot=None, title=None):
         rv = self.plotImage(data, title, plot)
@@ -32,9 +50,12 @@ class Display(object):
             pd.set_data('imagedata', image)
             plot = Plot(pd, default_origin = "bottom left")
             imgPlot = plot.img_plot("imagedata", colormap=jet, name='image')[0]
-            self._appendTools(imgPlot)
             plot.title = title
             plot.bgcolor = 'white'
+            if not title == 'Total Intensity':
+                plot.x_axis.visible = False
+                plot.y_axis.visible = False
+            self._appendTools(imgPlot, title)
         else:
             plot.data.set_data('imagedata', image)
             plot.title = title
@@ -42,7 +63,7 @@ class Display(object):
         plot.invalidate_draw()
         return plot
 
-    def _appendTools(self, plot):
+    def _appendTools(self, plot, title):
         '''append xy position, zoom, pan tools to plot
         '''
         plot.tools.append(PanTool(plot))
@@ -55,19 +76,6 @@ class Display(object):
             inspect_mode="indexed", write_metadata=True, is_listener=False)
         plot.overlays.append(xcursor)
         plot.overlays.append(ycursor)
-        plot.tools.append(ImageIndexTool(plot))
-
+        if title == 'Total Intensity':
+            plot.tools.append(ImageIndexTool(plot, callback=self._index_callback))
         return
-
-
-    
-    class ImageIndexTool(BaseTool):
-        
-        def normal_left_down(self, event):
-            self._update_plots(event)
-
-        def _update_plots(self, event):
-            plot = self.component
-            ndx = plot.map_index((event.x, event.y),
-                                 threshold=5.0, index_only=True)
-            print ndx
