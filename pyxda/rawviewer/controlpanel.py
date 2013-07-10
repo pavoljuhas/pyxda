@@ -11,6 +11,8 @@ class ControlPanel(HasTraits):
     right_arrow = Button('>')
     reset = Button('Reset')
     quality = Button('Total Intensity')
+    dirpath = Directory()
+    
 
     view = View(
                 Group(

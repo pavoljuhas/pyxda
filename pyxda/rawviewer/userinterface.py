@@ -16,11 +16,11 @@ from handler import PyXDAHandler
 import sys
 
 class UserInterface(HasTraits):
-        
+    '''    
     left = KeyBinding(binding1='Z', binding2='z', method_name='left')
     right = KeyBinding(binding1='X', binding2='x', method_name='_right_arrow_fired')
     bindings = KeyBindings(left, right) 
-
+    '''
     def __init__(self, **kwargs):
         super(UserInterface, self).__init__()
         self.add_trait('pyxda', px.PyXDA())
@@ -28,10 +28,8 @@ class UserInterface(HasTraits):
         self.add_trait('display', self.pyxda.display)
         self.add_trait('cmap', self.pyxda.cmap)
         self.pyxda.startProcessJob()
-        self.pyxda.loadimage.start()
+        #self.pyxda.loadimage.start()
 
-        self.add_trait('dirpath', Directory())
-        self.panel.sync_trait('dirpath', self.pyxda.loadimage, mutual=False)
         self.display.on_trait_change(self._ndx_changed, 'ndx')
         self.imagecontainer = Instance(Component)
         self.updateImageContainer()
@@ -50,7 +48,7 @@ class UserInterface(HasTraits):
                 height=0.75, width=0.75,
                 handler=PyXDAHandler(),
                 buttons=NoButtons,
-                key_bindings=bindings,
+                #key_bindings=bindings,
                 title = 'Raw Viewer')
 
     #############################
@@ -71,10 +69,10 @@ class UserInterface(HasTraits):
         self.pyxda.jobqueue.put(['createcmap'])
         return
     
-    @on_trait_change('dirpath', post_init=True)
-    def _reloadPanel(self):
-        self.dirpath = ''
-        self.pyxda.jobqueue.put(['reset'])
+    @on_trait_change('panel.dirpath', post_init=True)
+    def _dirpath_changed(self):
+        print 'startload request sent'
+        self.pyxda.jobqueue.put(['startload', [self.panel.dirpath]])
     
     def _ndx_changed(self):
         self.pyxda.jobqueue.put(['changendx'])

@@ -45,7 +45,7 @@ class PyXDA(HasTraits):
     
     def initLoadimage(self):
         self.jobqueue = Queue.Queue()
-        self.loadimage = LoadImage(self.jobqueue)
+        #self.loadimage = LoadImage(self.jobqueue)
         self.add_trait('datalist', List())
         self.imagecache = ImageCache()
         pic = np.zeros((2048, 2048))
@@ -101,6 +101,12 @@ class PyXDA(HasTraits):
         print 'DataListLengthAdd'
         return
 
+    def startLoad(self, dirpath):
+        if self.hasImage == True:
+            self.resetViewer()
+        self.loadimage = LoadImage(self.jobqueue, dirpath)
+        self.loadimage.start()
+        
     def initCache(self):
         for i in range(2):
             if i == 0:
@@ -211,16 +217,15 @@ class PyXDA(HasTraits):
         print 'Loading Complete'
         return
 
-    # TODO
     def resetViewer(self):
         print 'Reset'
         if self.hasImage == False:
             return
 
-        self.pic = np.zeros((2048, 2048))
-        self.title = '2D Image'
-        self.imageplot = self.display.plotImage(self.pic, self.title, self.imageplot)
-        self.plotnow = {}
+        #self.pic = np.zeros((2048, 2048))
+        #self.title = '2D Image'
+        #self.imageplot = self.display.plotImage(self.pic, self.title, self.imageplot)
+        #self.plotnow = {}
 
         self.mapdata = np.zeros((25, 25))
         self.cmap = self.display.plotImage(self.mapdata, 'Total Intensity', 
@@ -234,7 +239,7 @@ class PyXDA(HasTraits):
         del self.datalist[:]
         self.datalistlength = 0
         self.imagecache.clean()
-        del self.loadimage.filelist[:]
+        #del self.loadimage.filelist[:]
        
         return
 
@@ -281,6 +286,8 @@ class PyXDA(HasTraits):
                 self.changeIndex()
             elif jobtype == 'reset':
                 self.resetViewer()
+            elif jobtype == 'startload':
+                self.startLoad(*kwargs)
             jobdata = []
             self.jobqueue.task_done()
         return
