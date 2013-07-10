@@ -49,12 +49,16 @@ class Display(HasTraits, object):
             pd = ArrayPlotData()
             pd.set_data('imagedata', image)
             plot = Plot(pd, default_origin = "bottom left")
-            imgPlot = plot.img_plot("imagedata", colormap=jet, name='image')[0]
             plot.title = title
             plot.bgcolor = 'white'
             if not title == 'Total Intensity':
                 plot.x_axis.visible = False
                 plot.y_axis.visible = False
+                imgPlot = plot.img_plot("imagedata", colormap=jet, name='image')[0]
+            # TODO: mess with color maps on else block    
+            else:
+                imgPlot = plot.img_plot("imagedata", colormap=jet, name='image')[0]
+
             self._appendTools(imgPlot, title)
         else:
             plot.data.set_data('imagedata', image)
