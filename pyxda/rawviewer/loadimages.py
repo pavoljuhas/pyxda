@@ -28,9 +28,9 @@ class LoadImage(HasTraits, threading.Thread):
         return
 
     def run(self):
-        print 'Live mode start'
+        #print 'Live mode start'
         self._performLoad()
-        print 'Live mode stop'
+        #print 'Live mode stop'
         return
 
     def initLive(self):
@@ -77,7 +77,7 @@ class LoadImage(HasTraits, threading.Thread):
         '''
         for i in range(len(self.filelist)):
             self.jobqueue.put(['newimage', {'imagename':self.filelist[i]}])
-            print 'Image Process Sent'
+            #print 'Image Process Sent'
             if i == 2:
                 self.jobqueue.put(['initcache'])
             

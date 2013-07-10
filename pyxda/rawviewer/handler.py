@@ -13,8 +13,3 @@ class PyXDAHandler(Handler):
            wx.Yield()
         '''   
         return True
-
-    def left(self, info):
-        print 'left'
-
-

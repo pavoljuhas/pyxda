@@ -15,7 +15,7 @@ class ImageContainer(object):
         self.imagename = imagename
         self.imagepath = dirpath + '/' + imagename
         self.imagedata = None
-        print self.imagepath
+        #print self.imagepath
         
 class ImageCache(object):
     

@@ -67,10 +67,10 @@ class PyXDA(HasTraits):
 
     def initCMap(self):
         self.hascmap = False
-        mapdata = np.zeros((25, 25))
+        mapdata = np.zeros((12, 12))
         self.add_trait('mapdata', Instance(np.ndarray, mapdata))
         self.add_trait('cmap', Instance(Plot, self.display.plotImage(self.mapdata,
-                                        'Total Intensity', None)))
+                                        'Total Intensity Map', None)))
 
     ##############################################
     # Tasks  
@@ -83,13 +83,13 @@ class PyXDA(HasTraits):
         self.datalist.append(ImageContainer(listn, imagename, self.loadimage.dirpath))
         self.hasImage = True
         self.jobqueue.put(['datalistlengthadd'])
-        print 'Image Added'
+        #print 'Image Added'
         return
    
     plotnow = Event
     def plotData(self):
         self.imageplot = self.display.plot2DImage(self.pic, self.imageplot, self.title)
-        print 'Plot Data'
+        #print 'Plot Data'
         return
 
     datalistlengthadd = Event
@@ -98,7 +98,7 @@ class PyXDA(HasTraits):
         otherwise there will be some problem of frame range in UI
         '''
         self.datalistlength = self.datalistlength + 1
-        print 'DataListLengthAdd'
+        #print 'DataListLengthAdd'
         return
 
     def startLoad(self, dirpath):
@@ -115,38 +115,38 @@ class PyXDA(HasTraits):
                 self.plotnow = {}
             self.imagecache.cache.append(self.loadimage.getImage(self.datalist[i]))
         self.imagecache.imagepos = 0
-        print 'Init Cache'
+        #print 'Init Cache'
         return 
 
     def changeIndex(self):
-        print 'Change Index'
-        n = self.display.ndx[0] + (24 - self.display.ndx[1])*25
+        #print 'Change Index'
+        n = self.display.ndx[0] + (11 - self.display.ndx[1])*12
         time.sleep(0.5)
-        print n
+        #print n
 
         if self.hascmap == False:
             return
         
         currentpos = self.imagecache.imagepos
         if n - currentpos == -1:
-            print 'Click left'
+            #print 'Click left'
             self.updateCache('left') 
         elif n - currentpos == 1:
-            print 'Click right'
+            #print 'Click right'
             self.updateCache('right')
         elif n - currentpos == 0:
-            print 'Click same'
+            #print 'Click same'
             return
         elif n < self.datalistlength and n >= 0:
-            print 'Click skip'
+            #print 'Click skip'
             self.newndx = n
             self.updateCache('click')
         return
 
     def updateCache(self, strnext):
         n = self.imagecache.imagepos
-        print 'Update Cache'
-        print n
+        #print 'Update Cache'
+        #print n
         if n == -1:
             print 'Cannot traverse ' + strnext
             return
@@ -201,24 +201,25 @@ class PyXDA(HasTraits):
         return
 
     def createCMap(self):
-        print 'Generating Intensity Map........'
         if self.datalistlength == 0 or self.hascmap == True:
+            print 'Intensity Map Already Generated.......'
             return
+        print 'Generating Intensity Map........'
         for i, cont in enumerate(self.datalist):
             data = self.loadimage.getImage(cont)
             print '%d: %s........Loaded' % (i, cont.imagename)
-            self.mapdata[24-i/25, i%25] = data.sum()
+            self.mapdata[11-i/12, i%12] = data.sum()
             if (i+1) % 5 == 0:
                 self.cmap = self.display.plot2DImage(self.mapdata, 
-                                        self.cmap, 'Total Intensity')
+                                        self.cmap, 'Total Intensity Map')
         self.cmap = self.display.plot2DImage(self.mapdata, 
-                                    self.cmap, 'Total Intensity')
+                                    self.cmap, 'Total Intensity Map')
         self.hascmap = True
         print 'Loading Complete'
         return
 
     def resetViewer(self):
-        print 'Reset'
+        #print 'Reset'
         if self.hasImage == False:
             return
 
@@ -227,8 +228,8 @@ class PyXDA(HasTraits):
         #self.imageplot = self.display.plotImage(self.pic, self.title, self.imageplot)
         #self.plotnow = {}
 
-        self.mapdata = np.zeros((25, 25))
-        self.cmap = self.display.plotImage(self.mapdata, 'Total Intensity', 
+        self.mapdata = np.zeros((12, 12))
+        self.cmap = self.display.plotImage(self.mapdata, 'Total Intensity Map', 
                                                                 self.cmap)
         self.hascmap = False
         self.hasImage = False

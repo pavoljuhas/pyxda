@@ -71,7 +71,7 @@ class UserInterface(HasTraits):
     
     @on_trait_change('panel.dirpath', post_init=True)
     def _dirpath_changed(self):
-        print 'startload request sent'
+        #print 'startload request sent'
         self.pyxda.jobqueue.put(['startload', [self.panel.dirpath]])
     
     def _ndx_changed(self):
@@ -79,7 +79,7 @@ class UserInterface(HasTraits):
 
     def updateImageContainer(self):
             
-        container = GridContainer(bgcolor="lightgray", shape=(1,1), 
+        container = GridContainer(bgcolor="transparent", shape=(1,1), 
                                     use_backbuffer=True)
         self.imagecontainer = container
 

@@ -31,8 +31,8 @@ class Display(HasTraits, object):
     
     def _index_callback(self, tool, ndx):
         self.ndx = ndx 
-        print 'Display'
-        print self.ndx
+        #print 'Display'
+        #print self.ndx
 
     def plot2DImage(self, data, plot=None, title=None):
         rv = self.plotImage(data, title, plot)
@@ -80,6 +80,6 @@ class Display(HasTraits, object):
             inspect_mode="indexed", write_metadata=True, is_listener=False)
         plot.overlays.append(xcursor)
         plot.overlays.append(ycursor)
-        if title == 'Total Intensity':
+        if title == 'Total Intensity Map':
             plot.tools.append(ImageIndexTool(plot, callback=self._index_callback))
         return
