@@ -14,7 +14,17 @@ from enthought.chaco.color_bar import ColorBar
 from enthought.etsconfig.api import ETSConfig
 from enthought.traits.api import HasTraits, Float, Button, RGBColor
 from enthought.traits.ui.api import View, Controller
-from enthought.traits.ui.key_bindings import KeyBinding
+from enthought.traits.ui.key_bindings import KeyBinding, KeyBindings
+
+
+
+
+maximize = KeyBinding(binding1='M', binding2='m',
+        method_name='toggle_maximized')
+fullscreen = KeyBinding(binding1='F', binding2='f',
+        method_name='toggle_fullscreen')
+bindings = KeyBindings(maximize, fullscreen)
+
 
 class PyXDAUI(HasTraits):
     
@@ -43,8 +53,29 @@ class PyXDAUI(HasTraits):
                       ),
                 resizable=True,
                 height=0.75, width=0.75,
+                key_bindings=bindings,
                 buttons=NoButtons
                 )
+                
+    def toggle_maximized(self, info):
+        if ETSConfig.toolkit == 'wx':
+            current_mode = info.ui.control.IsMaximized()
+            info.ui.control.Maximize(not current_mode)
+        else:
+            if info.ui.control.isMaximized():
+                info.ui.control.showNormal()
+            else:
+                info.ui.control.showMaximized()
+ 
+    def toggle_fullscreen(self, info):
+        if ETSConfig.toolkit == 'wx':
+            current_mode = info.ui.control.IsFullScreen()
+            info.ui.control.ShowFullScreen(not current_mode)
+        else:
+            if info.ui.control.isFullScreen():
+                info.ui.control.showNormal()
+            else:
+                info.ui.control.showFullScreen()
 
     #############################
     # UI Action Handling
@@ -105,7 +136,7 @@ class PyXDAUI(HasTraits):
 
 
 
-def main():
+if __name__ == '__main__':
     ui = PyXDAUI()
     ui.configure_traits()
     

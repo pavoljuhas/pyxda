@@ -1,13 +1,14 @@
 from enthought.traits.api import HasTraits, Instance, Directory
 from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit, \
                     HGroup, VGroup
-from enthought.traits.api import HasTraits, Float, Button, RGBColor
+from traits.api import *
+from enthought.traits.api import HasTraits, Float, Button, RGBColor, Property, Bool
 
 class ControlPanel(HasTraits):
     '''Contains tools to interact with image.'''
     
     #Traits for this class
-    dirpath = Directory()
+    dirpath = Directory('')
     left_arrow = Button('<')
     right_arrow = Button('>')
     reset = Button('Reset')
@@ -27,3 +28,5 @@ class ControlPanel(HasTraits):
                    label = 'Controls'
                )
            )
+
+ControlPanel.configure_traits
