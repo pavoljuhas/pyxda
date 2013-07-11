@@ -1,4 +1,5 @@
-﻿# -*- coding: utf-8-sig -*-
+#!/usr/bin/env python
+
 import os
 import numpy as np
 import re
@@ -10,23 +11,26 @@ import threading
 
 class LoadImage(HasTraits, threading.Thread):
 
-
-    def __init__(self, queue):
+    def __init__(self, queue, dirpath):
         threading.Thread.__init__(self)
         super(LoadImage, self).__init__() 
 
-        self.add_trait('dirpath', Directory())
+        self.dirpath = dirpath
         self.filelist = []
 
         self.jobqueue = queue
         self.backgroundenable = False
         self.daemon=True
 
-    def run(self):
-        print 'Live mode start'
+    def _performLoad(self):
         self.initLive()
         self.livemode()
-        print 'Live mode stop'
+        return
+
+    def run(self):
+        #print 'Live mode start'
+        self._performLoad()
+        #print 'Live mode stop'
         return
 
     def initLive(self):
@@ -40,7 +44,7 @@ class LoadImage(HasTraits, threading.Thread):
                         self.filelist.append(f)
                 break
             else:
-                print 'Directory does not exist. (LoadImage)'
+                print 'No data found or directory does not exist. (LoadImage)'
 
         '''
         self.startime = time.time()
@@ -55,7 +59,7 @@ class LoadImage(HasTraits, threading.Thread):
         '''
         while True:
             
-            if self.checkTime(self.tifdirectory):
+            if self.checkTime(self.tifdirectory):di
                 newexistfileset = self.genFileSet() 
                 newfileset = newexistfileset - self.existfileset
                 newfilelist = sorted(list(newfileset))
@@ -73,10 +77,12 @@ class LoadImage(HasTraits, threading.Thread):
         '''
         for i in range(len(self.filelist)):
             self.jobqueue.put(['newimage', {'imagename':self.filelist[i]}])
-            print 'Image Process Sent'
+            #print 'Image Process Sent'
+            if i == 2:
+                self.jobqueue.put(['initcache'])
             
-        self.jobqueue.put(['initcache'])
-        self.jobqueue.put(['plotdata'])
+        # self.dirpath = ''
+        # self._performLoad()
         return
 
     def getImage(self, imagecontainer):

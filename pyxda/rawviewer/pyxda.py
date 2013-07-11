@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # EDIT IMPORTS AT END
 import chaco.api
 from enthought.traits.api import HasTraits, Instance, \
@@ -10,8 +12,10 @@ import scipy as sp
 import fabio
 import Queue
 import threading
+import time
 
 from display import Display
+from controlpanel import ControlPanel
 from imagecontainer import ImageContainer, ImageCache
 from loadimages import LoadImage
 
@@ -42,25 +46,23 @@ class PyXDA(HasTraits):
         self.initDisplay()
         self.initControlPanel()
         self.initCMap()
+
         return
     
     def initLoadimage(self):
         self.jobqueue = Queue.Queue()
-        self.loadimage = LoadImage(self.jobqueue)
+        #self.loadimage = LoadImage(self.jobqueue)
         self.add_trait('datalist', List())
         self.imagecache = ImageCache()
         pic = np.zeros((2048, 2048))
         self.add_trait('pic', Instance(np.ndarray, pic))
         title = '2D Image'
         self.add_trait('title', title)
-        self.add_trait('hasimage', Bool(False))
+        self.add_trait('hasImage', Bool(False))
         return
 
     def initDisplay(self):
-        self.display = Display()
-        self.display2 = Display()
-        
-        #First Plot
+        self.add_trait('display', Display())
         self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, 
                                             self.title, None)))
         self.imageplot.x_axis.visible = False
@@ -79,12 +81,10 @@ class PyXDA(HasTraits):
 
     def initCMap(self):
         self.hascmap = False
-        mapdata = np.zeros((25, 25))
+        mapdata = np.zeros((12, 12))
         self.add_trait('mapdata', Instance(np.ndarray, mapdata))
         self.add_trait('cmap', Instance(Plot, self.display.plotImage(self.mapdata,
-                                        'CMap', None)))
-        self.cmap.x_axis.visible = False
-        self.cmap.y_axis.visible = False                            
+                                        'Total Intensity Map', None)))
 
     ##############################################
     # Tasks  
@@ -93,18 +93,17 @@ class PyXDA(HasTraits):
         '''add new image and create jobs to process new image
         image:    2d ndarray, new 2d image array
         '''
-        #self.jobqueue.put(['lock'])
         listn = len(self.datalist)
         self.datalist.append(ImageContainer(listn, imagename, self.loadimage.dirpath))
-        self.hasimage = True
+        self.hasImage = True
         self.jobqueue.put(['datalistlengthadd'])
-        print 'Image Added'
+        #print 'Image Added'
         return
    
     plotnow = Event
     def plotData(self):
         self.imageplot = self.display.plot2DImage(self.pic, self.imageplot, self.title)
-        print 'Plot Data'
+        #print 'Plot Data'
         return
 
     datalistlengthadd = Event
@@ -113,30 +112,55 @@ class PyXDA(HasTraits):
         otherwise there will be some problem of frame range in UI
         '''
         self.datalistlength = self.datalistlength + 1
-        print 'DataListLengthAdd'
+        #print 'DataListLengthAdd'
         return
 
-    def processExistingFiles(self):
-        filelist = self.loadimage.filelist
-        for filen in filelist:
-            self.jobqueue.put(['newimage', {'imagename':filen}])
-        print 'Process Existing Files'
-        return
-
+    def startLoad(self, dirpath):
+        if self.hasImage == True:
+            self.resetViewer()
+        self.loadimage = LoadImage(self.jobqueue, dirpath)
+        self.loadimage.start()
+        
     def initCache(self):
         for i in range(2):
             if i == 0:
                 self.pic = self.loadimage.getImage(self.datalist[i])
                 self.title = self.datalist[i].imagename
+                self.plotnow = {}
             self.imagecache.cache.append(self.loadimage.getImage(self.datalist[i]))
         self.imagecache.imagepos = 0
-        print 'Init Cache'
+        #print 'Init Cache'
         return 
+
+    def changeIndex(self):
+        #print 'Change Index'
+        n = self.display.ndx[0] + (11 - self.display.ndx[1])*12
+        time.sleep(0.5)
+        #print n
+
+        if self.hascmap == False:
+            return
+        
+        currentpos = self.imagecache.imagepos
+        if n - currentpos == -1:
+            #print 'Click left'
+            self.updateCache('left') 
+        elif n - currentpos == 1:
+            #print 'Click right'
+            self.updateCache('right')
+        elif n - currentpos == 0:
+            #print 'Click same'
+            return
+        elif n < self.datalistlength and n >= 0:
+            #print 'Click skip'
+            self.newndx = n
+            self.updateCache('click')
+        return
 
     def updateCache(self, strnext):
         n = self.imagecache.imagepos
-        print 'Update Cache'
-        print n
+        #print 'Update Cache'
+        #print n
         if n == -1:
             print 'Cannot traverse ' + strnext
             return
@@ -154,7 +178,24 @@ class PyXDA(HasTraits):
                 self._innerCache(n, 1)
                 self.imagecache.cache.reverse()
                 return
+        elif strnext == 'click':
+            cache = self.imagecache
+            cache.cache.clear()
+            if self.newndx == 0:
+                self.initCache()
+                return
 
+            cache.imagepos = self.newndx
+            for i in range(2):
+                n = self.newndx - i
+                self.pic = self.loadimage.getImage(self.datalist[n])
+                self.title = self.datalist[n].imagename
+                if i == 0:
+                    self.plotnow = {}
+                cache.cache.appendleft(self.pic)
+            if not self.newndx == self.datalistlength - 1:
+                temp = self.datalist[self.newndx+1]
+                cache.cache.append(self.loadimage.getImage(temp))
         return
 
     def _innerCache(self, n, i):
@@ -173,68 +214,48 @@ class PyXDA(HasTraits):
         self.imagecache.imagepos = self.imagecache.imagepos + i*1
         return
 
-        '''
-        if strnext == 'left':
-            if n == 0:
-                return
-            elif n == 1:
-                self.pic = self.imagecache.cache.popleft()
-                self.title = self.datalist[n-1].imagename
-                self.imagecache.cache.pop()
-                self.plotnow = {}
-                self.imagecache.imagepos -= 1
-                self.imagecache.cache.append(temp)
-                return
-            else:
-                cont = self.datalist[n-2]
-                self.pic = self.imagecache.cache.popleft()
-                self.title = cont.imagename
-                self.plotnow = {}
-                self.imagecache.cache.pop()
-                self.imagecache.cache.appendleft(self.loadimage.getImage(cont))
-                self.imagecache.imagepos -= 1
-                self.imagecache.cache.append(temp)
-                return
-        elif strnext == 'right':
-            if n == self.datalistlength - 1:
-                return
-            elif n == self.datalistlength - 2:
-                self.pic = self.imagecache.cache.pop()
-                self.title = self.datalist[n+1].imagename
-                self.imagecache.cache.popleft()
-                self.plotnow = {}
-                self.imagecache.imagepos += 1
-                self.imagecache.appendleft(temp)
-                return
-            else:
-                cont = self.datalist[n+2]
-                self.pic = self.imagecache.cache.pop()
-                self.title = cont.imagename
-                self.plotnow = {}
-                print self.imagecache.cache
-                
-                self.imagecache.cache.popleft()
-                self.imagecache.cache.append(self.loadimage.getImage(cont))
-                self.imagecache.imagepos += 1
-                self.imagecache.cache.append(temp)
-                return
-        '''
     def createCMap(self):
-        print 'Create CMap'
         if self.datalistlength == 0 or self.hascmap == True:
+            print 'Intensity Map Already Generated.......'
             return
+        print 'Generating Intensity Map........'
         for i, cont in enumerate(self.datalist):
             data = self.loadimage.getImage(cont)
             print '%d: %s........Loaded' % (i, cont.imagename)
-            self.mapdata[24-i/25, i%25] = data.sum()
+            self.mapdata[11-i/12, i%12] = data.sum()
             if (i+1) % 5 == 0:
                 self.cmap = self.display.plot2DImage(self.mapdata, 
-                                        self.cmap, 'Quality Assessment')
-        self.hascmap == True
+                                        self.cmap, 'Total Intensity Map')
+        self.cmap = self.display.plot2DImage(self.mapdata, 
+                                    self.cmap, 'Total Intensity Map')
+        self.hascmap = True
         print 'Loading Complete'
         return
-    # TODO
+
     def resetViewer(self):
+        #print 'Reset'
+        if self.hasImage == False:
+            return
+
+        #self.pic = np.zeros((2048, 2048))
+        #self.title = '2D Image'
+        #self.imageplot = self.display.plotImage(self.pic, self.title, self.imageplot)
+        #self.plotnow = {}
+
+        self.mapdata = np.zeros((12, 12))
+        self.cmap = self.display.plotImage(self.mapdata, 'Total Intensity Map', 
+                                                                self.cmap)
+        self.hascmap = False
+        self.hasImage = False
+
+        with self.jobqueue.mutex:
+            self.jobqueue.queue.clear()
+        
+        del self.datalist[:]
+        self.datalistlength = 0
+        self.imagecache.clean()
+        #del self.loadimage.filelist[:]
+       
         return
 
 
@@ -276,16 +297,21 @@ class PyXDA(HasTraits):
                 self.initCache()
             elif jobtype == 'createcmap':
                 self.createCMap()
+            elif jobtype == 'changendx':
+                self.changeIndex()
             elif jobtype == 'reset':
                 self.resetViewer()
-            elif jobtype == 'processexist':
-                self.processExistingFiles()
-            #self.pdfliveconfig.releasePanel()
+            elif jobtype == 'startload':
+                self.startLoad(*kwargs)
             jobdata = []
             self.jobqueue.task_done()
         return
 
 def main():
+    a = PyXDA()
+    a.startProcessJob()
+    a.loadimage.initLive()
+    a.loadimage.start()
     return
     
 if __name__=='__main__':

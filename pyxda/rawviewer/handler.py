@@ -1,5 +1,6 @@
-from enthought.traits.ui.api import Handler
+#!/usr/bin/env python
 
+from enthought.traits.ui.api import Handler
 
 class PyXDAHandler(Handler):
     def close(self, info, is_OK):
@@ -12,5 +13,3 @@ class PyXDAHandler(Handler):
            wx.Yield()
         '''   
         return True
-
-
