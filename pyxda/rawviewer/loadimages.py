@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
 import os
-import numpy as np
-import re
 import fabio
 import time
-from enthought.traits.api import Dict, Instance, Directory, HasTraits
+from enthought.traits.api import HasTraits
 import threading
-
 
 class LoadImage(HasTraits, threading.Thread):
 

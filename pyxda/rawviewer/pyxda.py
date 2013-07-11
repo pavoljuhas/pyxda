@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # EDIT IMPORTS AT END
-import chaco.api
 from enthought.traits.api import HasTraits, Instance, \
                                 Dict, Event, Int, List, Bool, String
 from chaco.api import ArrayPlotData, Plot, jet

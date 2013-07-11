@@ -2,31 +2,8 @@
 
 from chaco.tools.api import PanTool, ZoomTool, LineInspector
 from chaco.api import ArrayPlotData, Plot, jet, BaseTool
-from enable.api import BaseTool, KeySpec
-from traits.api import Any, HasTraits, Instance, Tuple, Int
-
-
-
-
-# Major library imports
-from numpy import linspace, meshgrid, pi
-from scipy.special import jn
-
-# Enthought library imports
-from enable.api import Component, ComponentEditor
-from traits.api import HasTraits, Instance
-from traitsui.api import Item, Group, View
-
-# Chaco imports
-from chaco.api import ArrayPlotData, ColorBar, HPlotContainer, jet, \
-                                 LinearMapper, Plot
-from chaco.tools.api import PanTool, RangeSelection, \
-                                       RangeSelectionOverlay, ZoomTool
-                                       
-                                       
-                                       
-
-
+from traits.api import Any, HasTraits, Tuple
+                                
 class ImageIndexTool(BaseTool):
 
     callback = Any()

@@ -1,26 +1,17 @@
 #!/usr/bin/env python
 
-from enthought.traits.api import HasTraits, Instance, Directory
-from display import Display
-from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit, \
-                    HGroup, VGroup
-from traits.api import *
-from enable.api import ComponentEditor,Component
+from enthought.traits.api import HasTraits, Instance
 from enthought.traits.ui.menu import NoButtons
-from enthought.traits.ui.key_bindings import KeyBinding, KeyBindings
-from chaco.api import ArrayPlotData, Plot, jet, GridContainer
-
-import pyxda as px
-from controlpanel import ControlPanel
-from handler import PyXDAHandler
+from enthought.traits.ui.api import View, Item, HSplit, VGroup
+from traits.api import on_trait_change
+from enable.api import ComponentEditor,Component
+from chaco.api import GridContainer
 import sys
+import pyxda as px
+from handler import PyXDAHandler
 
 class UserInterface(HasTraits):
-    '''    
-    left = KeyBinding(binding1='Z', binding2='z', method_name='left')
-    right = KeyBinding(binding1='X', binding2='x', method_name='_right_arrow_fired')
-    bindings = KeyBindings(left, right) 
-    '''
+    
     def __init__(self, **kwargs):
         super(UserInterface, self).__init__()
         self.add_trait('pyxda', px.PyXDA())

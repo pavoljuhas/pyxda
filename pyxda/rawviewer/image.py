@@ -1,7 +1,6 @@
-from enthought.traits.api import HasTraits,Int,Float,Str,Property
-from enthought.traits.api import Range,Array, Instance 
-from chaco.api import Plot, ArrayPlotData
-import numpy as np
+from enthought.traits.api import Str
+from enthought.traits.api import Array, Instance 
+from chaco.api import Plot
 
 class Image():
     data = Instance(Array())
