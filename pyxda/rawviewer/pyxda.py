@@ -19,12 +19,6 @@ from controlpanel import ControlPanel
 from imagecontainer import ImageContainer, ImageCache
 from loadimages import LoadImage
 
-# Major library imports
-from numpy import linspace, meshgrid, pi
-from scipy.special import jn
-
-from controlpanel import ControlPanel
-
 class PyXDA(HasTraits):
 
     ##############################################
@@ -65,14 +59,6 @@ class PyXDA(HasTraits):
         self.add_trait('display', Display())
         self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, 
                                             self.title, None)))
-        self.imageplot.x_axis.visible = False
-        self.imageplot.y_axis.visible = False
-        
-        #Second Plot
-        self.add_trait('imageplot2', Instance(Plot, self.display2.plotImage(self.pic, '', None)))
-        self.imageplot2.x_axis.visible = False
-        self.imageplot2.y_axis.visible = False
-        
         return
 
     def initControlPanel(self):
