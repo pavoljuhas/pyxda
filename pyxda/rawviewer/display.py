@@ -1,16 +1,20 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 
 from chaco.tools.api import PanTool, ZoomTool, LineInspector
 from chaco.api import ArrayPlotData, Plot, jet, BaseTool
-from enable.api import BaseTool, KeySpec
-from traits.api import Any, HasTraits, Instance, Tuple, Int
+from enable.api import BaseTool, KeySpec, ColorTrait, KeySpec
+from traits.api import Any, HasTraits, Instance, Tuple, Int, Event
 
 
 class ImageIndexTool(BaseTool):
 
     callback = Any()
+    arrow_cb = Any()
     token  = Any()
-        
+    left_key = KeySpec("Left",)
+    right_key = KeySpec("Right",)
+
     def normal_left_down(self, event):
         self._update_plots(event)
 
@@ -22,17 +26,32 @@ class ImageIndexTool(BaseTool):
             self.callback(self, ndx)
             #print ndx
 
+    def normal_key_pressed(self, event):
+        if self.left_key.match(event):
+            print 'Left Arrow'
+            self.arrow_cb(self, -1)
+        elif self.right_key.match(event):
+            print 'Right Arrow'
+            self.arrow_cb(self, 1)
+
 class Display(HasTraits, object):
 
     def __init__(self, **kwargs):
         super(Display, self).__init__()
         ndx = -1, -1
         self.add_trait('ndx', Tuple(ndx))
+        self.add_trait('left', Event)
+        self.add_trait('right', Event)
     
     def _index_callback(self, tool, ndx):
+        print 'Pixel clicked: (%d, %d)' % ndx
         self.ndx = ndx 
-        #print 'Display'
-        #print self.ndx
+
+    def _arrow_callback(self, tool, n):
+        if n == 1:
+            self.right = {}
+        else:
+            self.left = {}
 
     def plot2DImage(self, data, plot=None, title=None):
         rv = self.plotImage(data, title, plot)
@@ -71,15 +90,23 @@ class Display(HasTraits, object):
         '''append xy position, zoom, pan tools to plot
         '''
         plot.tools.append(PanTool(plot))
-        zoom = ZoomTool(component=plot, tool_mode="box", always_on=False)
+        zoom = ZoomTool(component=plot, tool_mode="box", always_on=False,
+                            color='transparent', aspect_ratio=1.0,
+                            zoom_factor=1.25, pointer='sizing',
+                            prev_state_key=KeySpec('n'),
+                            next_state_key=KeySpec('m')
+                            )
         plot.overlays.append(zoom)
         plot.zoom = zoom
+        '''
         xcursor = LineInspector(plot, axis="index_x", color="white",
             inspect_mode="indexed", write_metadata=True, is_listener=False)
         ycursor = LineInspector(plot, axis="index_y", color="white",
             inspect_mode="indexed", write_metadata=True, is_listener=False)
         plot.overlays.append(xcursor)
         plot.overlays.append(ycursor)
+        '''
         if title == 'Total Intensity Map':
-            plot.tools.append(ImageIndexTool(plot, callback=self._index_callback))
+            plot.tools.append(ImageIndexTool(plot, callback=self._index_callback,
+                                             arrow_cb=self._arrow_callback))
         return

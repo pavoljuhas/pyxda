@@ -19,13 +19,13 @@ from controlpanel import ControlPanel
 from imagecontainer import ImageContainer, ImageCache
 from loadimages import LoadImage
 
-class PyXDA(HasTraits):
+class RawViewer(HasTraits):
 
     ##############################################
     # Initialize
     ##############################################
     def __init__(self, **kwargs):
-        super(PyXDA, self).__init__()
+        super(RawViewer, self).__init__()
         
         self.processing_job = threading.Thread(target=self.processJob)
         self.processing_job.daemon = True
@@ -35,17 +35,15 @@ class PyXDA(HasTraits):
         
         self.on_trait_change(self.plotData, 'plotnow', dispatch='ui')
         self.on_trait_change(self.datalistLengthAdd,'datalistlengthadd', dispatch='ui')
-        
+       
         self.initLoadimage()
         self.initDisplay()
         self.initControlPanel()
         self.initCMap()
-
         return
     
     def initLoadimage(self):
         self.jobqueue = Queue.Queue()
-        #self.loadimage = LoadImage(self.jobqueue)
         self.add_trait('datalist', List())
         self.imagecache = ImageCache()
         pic = np.zeros((2048, 2048))
@@ -59,6 +57,7 @@ class PyXDA(HasTraits):
         self.add_trait('display', Display())
         self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, 
                                             self.title, None)))
+        self.display.on_trait_change(self.changeIndex, 'ndx', dispatch='ui')
         return
 
     def initControlPanel(self):
@@ -83,13 +82,13 @@ class PyXDA(HasTraits):
         self.datalist.append(ImageContainer(listn, imagename, self.loadimage.dirpath))
         self.hasImage = True
         self.jobqueue.put(['datalistlengthadd'])
-        #print 'Image Added'
+        print 'Image Added'
         return
    
     plotnow = Event
     def plotData(self):
         self.imageplot = self.display.plot2DImage(self.pic, self.imageplot, self.title)
-        #print 'Plot Data'
+        print 'Plot Data'
         return
 
     datalistlengthadd = Event
@@ -98,7 +97,7 @@ class PyXDA(HasTraits):
         otherwise there will be some problem of frame range in UI
         '''
         self.datalistlength = self.datalistlength + 1
-        #print 'DataListLengthAdd'
+        print 'DataListLengthAdd'
         return
 
     def startLoad(self, dirpath):
@@ -115,11 +114,11 @@ class PyXDA(HasTraits):
                 self.plotnow = {}
             self.imagecache.cache.append(self.loadimage.getImage(self.datalist[i]))
         self.imagecache.imagepos = 0
-        #print 'Init Cache'
+        print 'Init Cache'
         return 
 
     def changeIndex(self):
-        #print 'Change Index'
+        print 'Change Index'
         n = self.display.ndx[0] + (11 - self.display.ndx[1])*12
         time.sleep(0.5)
         #print n
@@ -130,7 +129,8 @@ class PyXDA(HasTraits):
         currentpos = self.imagecache.imagepos
         if n - currentpos == -1:
             #print 'Click left'
-            self.updateCache('left') 
+            self.updateCache('left')
+
         elif n - currentpos == 1:
             #print 'Click right'
             self.updateCache('right')
@@ -145,8 +145,8 @@ class PyXDA(HasTraits):
 
     def updateCache(self, strnext):
         n = self.imagecache.imagepos
-        #print 'Update Cache'
-        #print n
+        print 'Update Cache'
+        print '%d -> %d' % (n, self.newndx)
         if n == -1:
             print 'Cannot traverse ' + strnext
             return
@@ -219,14 +219,9 @@ class PyXDA(HasTraits):
         return
 
     def resetViewer(self):
-        #print 'Reset'
+        print 'Reset'
         if self.hasImage == False:
             return
-
-        #self.pic = np.zeros((2048, 2048))
-        #self.title = '2D Image'
-        #self.imageplot = self.display.plotImage(self.pic, self.title, self.imageplot)
-        #self.plotnow = {}
 
         self.mapdata = np.zeros((12, 12))
         self.cmap = self.display.plotImage(self.mapdata, 'Total Intensity Map', 
@@ -241,7 +236,6 @@ class PyXDA(HasTraits):
         self.datalistlength = 0
         self.imagecache.clean()
         #del self.loadimage.filelist[:]
-       
         return
 
 
@@ -253,7 +247,6 @@ class PyXDA(HasTraits):
         method should be called before the imageload thread.
         '''
         self.processing_job.start()
-        #self.jobqueue.put(['updateconfig'])
         return
     
     def processJob(self):

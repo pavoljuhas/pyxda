@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from enthought.traits.api import HasTraits, Directory, Button, Int
+from traits.api import HasTraits, Directory, Button, Int
 from enthought.traits.ui.api import View,Item, Group, HGroup, HSplit
 from chaco.api import GridContainer
 
