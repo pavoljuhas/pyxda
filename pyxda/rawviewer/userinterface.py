@@ -26,6 +26,7 @@ class UserInterface(HasTraits):
 
         self.display.on_trait_change(self._left_arrow_fired, 'left')
         self.display.on_trait_change(self._right_arrow_fired, 'right')
+        self.panel.sync_trait('datalistlength', self.rawviewer)
         self.imagecontainer = Instance(Component)
         self.updateImageContainer()
 
@@ -43,7 +44,6 @@ class UserInterface(HasTraits):
                 height=0.75, width=0.75,
                 handler=PyXDAHandler(),
                 buttons=NoButtons,
-                #key_bindings=bindings,
                 title = 'Raw Viewer')
 
     #############################
@@ -70,6 +70,9 @@ class UserInterface(HasTraits):
     
     def _ndx_changed(self):
         self.rawviewer.jobqueue.put(['changendx'])
+    @on_trait_change('rawviewer.imagecache.imagepos', post_init=True)
+    def _imagepos_changed(self):
+        self.panel.index = self.rawviewer.imagecache.imagepos + 1 
         
     def updateImageContainer(self):
             

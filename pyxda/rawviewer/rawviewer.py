@@ -19,8 +19,14 @@ from controlpanel import ControlPanel
 from imagecontainer import ImageContainer, ImageCache
 from loadimages import LoadImage
 
-class RawViewer(HasTraits):
+####################
 
+SIZE = 12
+
+####################
+
+class RawViewer(HasTraits):
+    
     ##############################################
     # Initialize
     ##############################################
@@ -58,6 +64,7 @@ class RawViewer(HasTraits):
         self.add_trait('imageplot', Instance(Plot, self.display.plotImage(self.pic, 
                                             self.title, None)))
         self.display.on_trait_change(self.changeIndex, 'ndx', dispatch='ui')
+        self.newndx = -1
         return
 
     def initControlPanel(self):
@@ -66,7 +73,7 @@ class RawViewer(HasTraits):
 
     def initCMap(self):
         self.hascmap = False
-        mapdata = np.zeros((12, 12))
+        mapdata = np.zeros((SIZE, SIZE))
         self.add_trait('mapdata', Instance(np.ndarray, mapdata))
         self.add_trait('cmap', Instance(Plot, self.display.plotImage(self.mapdata,
                                         'Total Intensity Map', None)))
@@ -119,44 +126,45 @@ class RawViewer(HasTraits):
 
     def changeIndex(self):
         print 'Change Index'
-        n = self.display.ndx[0] + (11 - self.display.ndx[1])*12
-        time.sleep(0.5)
+        self.newndx = self.display.ndx[0] + (SIZE - 1 - self.display.ndx[1])*SIZE
         #print n
 
         if self.hascmap == False:
             return
         
         currentpos = self.imagecache.imagepos
-        if n - currentpos == -1:
+
+        if self.newndx - currentpos == -1:
             #print 'Click left'
             self.updateCache('left')
-
-        elif n - currentpos == 1:
+        elif self.newndx - currentpos == 1:
             #print 'Click right'
             self.updateCache('right')
-        elif n - currentpos == 0:
+        elif self.newndx - currentpos == 0:
             #print 'Click same'
             return
-        elif n < self.datalistlength and n >= 0:
+        elif self.newndx < self.datalistlength and self.newndx >= 0:
             #print 'Click skip'
-            self.newndx = n
             self.updateCache('click')
         return
 
     def updateCache(self, strnext):
         n = self.imagecache.imagepos
         print 'Update Cache'
-        print '%d -> %d' % (n, self.newndx)
         if n == -1:
             print 'Cannot traverse ' + strnext
             return
         if strnext == 'left':
+            self.newndx = n - 1
+            print '%d -> %d' % (n, self.newndx)
             if n == 0:
                 return
             else:
                 self._innerCache(n, -1)
                 return
         elif strnext == 'right':
+            self.newndx = n + 1
+            print '%d -> %d' % (n, self.newndx)
             if n == self.datalistlength - 1:
                 return
             else:
@@ -165,6 +173,7 @@ class RawViewer(HasTraits):
                 self.imagecache.cache.reverse()
                 return
         elif strnext == 'click':
+            print '%d -> %d' % (n, self.newndx)
             cache = self.imagecache
             cache.cache.clear()
             if self.newndx == 0:
@@ -208,12 +217,13 @@ class RawViewer(HasTraits):
         for i, cont in enumerate(self.datalist):
             data = self.loadimage.getImage(cont)
             print '%d: %s........Loaded' % (i, cont.imagename)
-            self.mapdata[11-i/12, i%12] = data.sum()
+            self.mapdata[SIZE-1-i/SIZE, i%SIZE] = data.sum()
             if (i+1) % 5 == 0:
                 self.cmap = self.display.plot2DImage(self.mapdata, 
                                         self.cmap, 'Total Intensity Map')
         self.cmap = self.display.plot2DImage(self.mapdata, 
                                     self.cmap, 'Total Intensity Map')
+        self.display.appendCMapTools(self.cmap, self.imagecache.imagepos) 
         self.hascmap = True
         print 'Loading Complete'
         return
@@ -223,11 +233,12 @@ class RawViewer(HasTraits):
         if self.hasImage == False:
             return
 
-        self.mapdata = np.zeros((12, 12))
+        self.mapdata = np.zeros((SIZE, SIZE))
         self.cmap = self.display.plotImage(self.mapdata, 'Total Intensity Map', 
                                                                 self.cmap)
         self.hascmap = False
         self.hasImage = False
+        self.newndx = -1
 
         with self.jobqueue.mutex:
             self.jobqueue.queue.clear()

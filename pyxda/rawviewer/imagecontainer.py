@@ -5,7 +5,7 @@ import scipy as sp
 import scipy.sparse as ssp
 import fabio
 import os
-
+from traits.api import HasTraits, Instance, Int
 from collections import deque
 
 class ImageContainer(object):
@@ -16,12 +16,13 @@ class ImageContainer(object):
         self.imagepath = dirpath + '/' + imagename
         self.imagedata = None
         #print self.imagepath
+        return
         
-class ImageCache(object):
+class ImageCache(HasTraits, object):
     
     def __init__(self):
         self.cache = deque(maxlen=3)
-        self.imagepos = -1
+        self.add_trait('imagepos', Int(-1))
         return
     
     def clean(self):
