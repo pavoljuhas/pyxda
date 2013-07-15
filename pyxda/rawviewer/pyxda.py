@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
 # EDIT IMPORTS AT END
-from enthought.traits.api import HasTraits, Instance, \
-                                Dict, Event, Int, List, Bool, String
-from chaco.api import ArrayPlotData, Plot, jet
-import traitsui.api
-import enable.api
+from enthought.traits.api import HasTraits, Instance, Event, Int, List, Bool
+from chaco.api import Plot
 import numpy as np
-import scipy as sp
-import fabio
 import Queue
 import threading
 import time
@@ -61,7 +56,7 @@ class PyXDA(HasTraits):
         return
 
     def initControlPanel(self):
-        self.panel = ControlPanel(display=self.display)
+        self.panel = ControlPanel()
         return
 
     def initCMap(self):
@@ -196,8 +191,7 @@ class PyXDA(HasTraits):
         if (n == 1 and i == -1) or (n == self.datalistlength-2 and i == 1):
             self.imagecache.cache.pop()
 
-        self.imagecache.imagepos = self.imagecache.imagepos + i*1
-        return
+        self.imagecache.imagepos = self.imagecache.imagepos + i
 
     def createCMap(self):
         if self.datalistlength == 0 or self.hascmap == True:

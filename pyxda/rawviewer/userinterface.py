@@ -48,11 +48,15 @@ class UserInterface(HasTraits):
     @on_trait_change('panel.left_arrow', post_init=True)
     def _left_arrow_fired(self):
         self.pyxda.jobqueue.put(['updatecache', ['left']])
+        self.panel.index = self.pyxda.imagecache.imagepos
+        self.panel.text  = ' of '+str(self.pyxda.datalistlength)
         return
     
     @on_trait_change('panel.right_arrow', post_init=True)
     def _right_arrow_fired(self):
         self.pyxda.jobqueue.put(['updatecache', ['right']])
+        self.panel.index = self.pyxda.imagecache.imagepos
+        self.panel.text  = ' of '+str(self.pyxda.datalistlength)
         return
     
     @on_trait_change('panel.quality', post_init=True)
@@ -64,6 +68,9 @@ class UserInterface(HasTraits):
     def _dirpath_changed(self):
         #print 'startload request sent'
         self.pyxda.jobqueue.put(['startload', [self.panel.dirpath]])
+        self.panel.index = self.pyxda.imagecache.imagepos
+        self.panel.text  = ' of '+str(self.pyxda.datalistlength)
+        return
     
     def _ndx_changed(self):
         self.pyxda.jobqueue.put(['changendx'])
@@ -79,7 +86,6 @@ class UserInterface(HasTraits):
             container.remove(cont)
         
         container.add(cont)
-        
         container.get_preferred_size()
         container.invalidate_draw()
         return
