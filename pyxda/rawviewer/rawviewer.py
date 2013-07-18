@@ -73,10 +73,10 @@ class RawViewer(HasTraits):
 
     def initCMap(self):
         self.hascmap = False
-        mapdata = np.zeros((SIZE, SIZE))
-        self.add_trait('mapdata', Instance(np.ndarray, mapdata))
-        self.add_trait('cmap', Instance(Plot, self.display.plotImage(self.mapdata,
-                                        'Total Intensity Map', None)))
+        #mapdata = np.zeros((SIZE, SIZE))
+        #self.add_trait('mapdata', Instance(np.ndarray, mapdata))
+        self.add_trait('cmap', Instance(Plot, self.display.plotRRMap(None,
+                                                            'Total Intensity Map')))
 
     ##############################################
     # Tasks  
@@ -126,7 +126,7 @@ class RawViewer(HasTraits):
 
     def changeIndex(self):
         print 'Change Index'
-        self.newndx = self.display.ndx[0] + (SIZE - 1 - self.display.ndx[1])*SIZE
+        self.newndx = self.display.ndx
         #print n
 
         if self.hascmap == False:
@@ -211,19 +211,16 @@ class RawViewer(HasTraits):
 
     def createCMap(self):
         if self.datalistlength == 0 or self.hascmap == True:
-            print 'Intensity Map Already Generated.......'
+            print 'Intensity Map Cannot be (Re)created.......'
             return
+
         print 'Generating Intensity Map........'
         for i, cont in enumerate(self.datalist):
-            data = self.loadimage.getImage(cont)
+            image = self.loadimage.getImage(cont)
             print '%d: %s........Loaded' % (i, cont.imagename)
-            self.mapdata[SIZE-1-i/SIZE, i%SIZE] = data.sum()
-            if (i+1) % 5 == 0:
-                self.cmap = self.display.plot2DImage(self.mapdata, 
-                                        self.cmap, 'Total Intensity Map')
-        self.cmap = self.display.plot2DImage(self.mapdata, 
-                                    self.cmap, 'Total Intensity Map')
-        self.display.appendCMapTools(self.cmap, self.imagecache.imagepos) 
+            rr = image.sum()
+            #if (i+1) % 5 == 0:
+            self.cmap = self.display.plotRRMap(rr, 'Total Intensity Map', self.cmap)
         self.hascmap = True
         print 'Loading Complete'
         return

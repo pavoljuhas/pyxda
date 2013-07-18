@@ -11,7 +11,7 @@ class ControlPanel(HasTraits):
     left_arrow = Button('<')
     right_arrow = Button('>')
     reset = Button('Reset')
-    quality = Button('Generate Intensity Map')
+    quality = Button('Generate Reduced Representation Map')
     dirpath = Directory()
     spacer = Str('              ')
     index = Int(0)
