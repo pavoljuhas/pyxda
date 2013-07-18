@@ -29,12 +29,12 @@ class UserInterface(HasTraits):
     view = View(HSplit(Item('imagecontainer', editor=ComponentEditor(),
                             dock='vertical'),
                        VGroup(
-                            Item('panel', style="custom", padding=10),
+                            Item('panel', style="custom"),
                             Item('cmap', editor=ComponentEditor()),
                             show_labels = False
-                             ),
+                       ),
                        show_labels=False,
-                      ),
+                ),
                 resizable=True,
                 height=0.75, width=0.75,
                 handler=PyXDAHandler(),
@@ -45,14 +45,14 @@ class UserInterface(HasTraits):
     #############################
     # UI Action Handling
     #############################
-    @on_trait_change('panel.left_arrow', post_init=True)
+    @on_trait_change('panel.image_select.arrow_keys.left_arrow', post_init=True)
     def _left_arrow_fired(self):
         self.pyxda.jobqueue.put(['updatecache', ['left']])
         self.panel.index = self.pyxda.imagecache.imagepos
         self.panel.text  = ' of '+str(self.pyxda.datalistlength)
         return
     
-    @on_trait_change('panel.right_arrow', post_init=True)
+    @on_trait_change('panel.image_select.arrow_keys.right_arrow', post_init=True)
     def _right_arrow_fired(self):
         self.pyxda.jobqueue.put(['updatecache', ['right']])
         self.panel.index = self.pyxda.imagecache.imagepos
@@ -68,9 +68,18 @@ class UserInterface(HasTraits):
     def _dirpath_changed(self):
         #print 'startload request sent'
         self.pyxda.jobqueue.put(['startload', [self.panel.dirpath]])
-        self.panel.index = self.pyxda.imagecache.imagepos
-        self.panel.text  = ' of '+str(self.pyxda.datalistlength)
+        self.panel.image_select.index_display.index = self.pyxda.imagecache.imagepos
+        self.panel.image_select.index_display.text  = ' of '+str(self.pyxda.datalistlength)
         return
+    
+    @on_trait_change('panel.scale', post_init=True)
+    def _scale_changed(self):
+        #Siwtches between linear and log scale  
+        #TODO: Add functionality     
+        if self.panel.scale == 'linear':
+            print 'linear!'
+        else:
+            print 'logorithmic'
     
     def _ndx_changed(self):
         self.pyxda.jobqueue.put(['changendx'])
