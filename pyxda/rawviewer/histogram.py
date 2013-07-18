@@ -1,57 +1,92 @@
+# -*- coding: utf-8 -*-
 # Major library imports
-import numpy
+import numpy as np
 import fabio
 
 # Enthought library imports
 from enable.api import ComponentEditor, Component
-from traits.api import HasTraits, Instance, Array
-from traitsui.api import UItem, View
+from traits.api import HasTraits, Instance
+from traitsui.api import View, UItem
 
 # Chaco imports
-from chaco.api import Plot, ArrayPlotData, LassoOverlay, add_default_axes, add_default_grids
-from chaco.tools.api import PanTool, ZoomTool, DragZoom, RangeSelection, RangeSelectionOverlay
+from chaco.tools.api import PanTool
+from chaco.tools.simple_zoom import SimpleZoom
+from chaco.api import ArrayDataSource, BarPlot, DataRange1D, \
+                         LinearMapper, add_default_grids, PlotAxis, \
+                         VPlotContainer, PlotLabel
 
+#TODO. Add On_Highlight - DO SOMETHING
+#      Remove required initialize data variable
 class Histogram(HasTraits):
-    plot = Instance(Component)
-    traits_view = View(UItem('plot', editor=ComponentEditor()),
-                       width=0.5, height=0.5, resizable=True, 
-                      )
+    '''
+    Histogram class for displaying image intesity distribution.
+    
+    Takes in image data on instatiation. Creates view that displays a histogram
+    of intensity distrubution.
+    
+    Left mouse pans the image.
+    Right mouse highlights a region.
+    Mouse scroll zooms in and out.
+    '''
+    
+    bar_plot = Instance(Component)
+    
+    traits_view = View(
+                      UItem('bar_plot', editor=ComponentEditor()),
+                      width = 0.75, height = 0.75
+                  )
 
     def __init__(self, data, **kw):
         super(Histogram, self).__init__(**kw)
         
         data = data.ravel()
-        histData = numpy.histogram(data, bins = 5000)
+        histData = np.histogram(data, bins = 100000)
         index = histData[1]
-        self.index = numpy.delete(index, index.size-1)
+        self.index = np.delete(index, index.size-1)
         self.values = histData[0]
                 
-    def _plot_default(self):
-        
-        #Create Plot
-        plot_data = ArrayPlotData(index=self.index)
-        plot_data.set_data('values', self.values)
-        plot = Plot(plot_data)
-        plot.plot(('index', 'values'), type='bar', bar_width=0.8, color='black')
-        
-        '''# The PanTool allows panning around the plot
-        self.plot.tools.append(PanTool(self.plot))
+    def _bar_plot_default(self):
 
-        # The ZoomTool tool is stateful and allows drawing a zoom
-        # box to select a zoom region.
-        zoom = ZoomTool(self.plot, tool_mode="box", always_on=False)
-        self.plot.overlays.append(zoom)'''
-        
-        #Range Selection Tool
-        '''plot.active_tool = RangeSelection(plot, left_button_selects = True)
-        plot.overlays.append(RangeSelectionOverlay(component=plot))
-        plot.bgcolor = "white"
-        plot.padding = 50'''
-        
-        return plot
-        
-        
+        # Default data
+        idx = self.index
+        vals = self.values
 
+        # Mappers
+        index = ArrayDataSource(idx)
+        index_range = DataRange1D(index, low = -5000, high = 75000)
+        index_mapper = LinearMapper(range=index_range)
+
+        value = ArrayDataSource(vals)
+        value_range = DataRange1D(value, high = 7000)
+        value_mapper = LinearMapper(range=value_range)
+
+        # The bar plot
+        plot = BarPlot(index = index, value = value,
+                             index_mapper = index_mapper,
+                             value_mapper = value_mapper,
+                             line_color = 'black',
+                             bgcolor = "white",
+                             border_visible = True)
+                             
+        #Plot overlays                     
+        add_default_grids(plot)
+        plot.overlays.append(PlotAxis(plot, orientation='left'))
+        plot.overlays.append(PlotAxis(plot, orientation='bottom'))
+        plot.tools.append(PanTool(plot, constrain=True,
+                                        constrain_direction="x"))
+        plot.overlays.append(SimpleZoom(plot, drag_button="right",
+                                            always_on=True,
+                                            tool_mode="range",
+                                            axis="index"))
+    
+    
+        container = VPlotContainer(spacing = 20, padding = 50)               
+        container.add(plot)
+        container.overlays.append(PlotLabel("Histogram", component=container, font="Arial 30"))
+        return container
+        
+        
+#For testing
 if __name__ == "__main__":
     image = fabio.open('//BNLNT1C/Users/M/mlange/pyXDA-Development/1208NSLSX17A_LiRh2O4/LiRh2O4_w2k_080K-00006.tif')
     data = image.data
