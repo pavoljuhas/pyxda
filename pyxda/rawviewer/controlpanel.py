@@ -47,7 +47,7 @@ class ControlPanel(HasTraits):
     dirpath = Directory()
     reset = Button('Reset')
     quality = Button('Generate Intensity Map')
-    scale = Enum('linear', 'log')
+    Reduced = Enum('linear', 'log')
     dirpath = Directory()
     
     image_select = Instance(ImageSelect)
@@ -58,14 +58,13 @@ class ControlPanel(HasTraits):
     view = View(
                Group(
                    Item('dirpath', show_label = False),
-                   Item('image_select', style = 'custom', show_label = False, width = -300),
                    HGroup(
-                       Item('scale'),
+                       Group(Item('image_select', style = 'custom', show_label = False, width = -300), show_border = True),
                        Item('quality', show_label = False),
                    ),
                show_border = True
                ),
-               width = 0.25
+               width = 0.40
             )
                          
 if __name__ == '__main__':

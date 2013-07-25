@@ -2,7 +2,7 @@
 
 from enthought.traits.api import HasTraits, Instance
 from enthought.traits.ui.menu import NoButtons
-from enthought.traits.ui.api import View, Item, HSplit, VGroup
+from enthought.traits.ui.api import View, Item, UItem, HSplit, VGroup, Group
 from traits.api import on_trait_change
 from enable.api import ComponentEditor,Component
 from chaco.api import GridContainer
@@ -26,8 +26,9 @@ class UserInterface(HasTraits):
         self.updateImageContainer()
 
     # TODO: Adjust view
-    view = View(HSplit(Item('imagecontainer', editor=ComponentEditor(),
-                            dock='vertical'),
+    view = View(HSplit(Group(UItem('imagecontainer', editor=ComponentEditor(),
+                            dock='vertical'), 
+                            show_border = True),
                        VGroup(
                             Item('panel', style="custom"),
                             Item('cmap', editor=ComponentEditor()),
