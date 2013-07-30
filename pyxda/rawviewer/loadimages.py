@@ -3,12 +3,12 @@
 import os
 import numpy as np
 import re
-import fabio
 import time
 from enthought.traits.api import Dict, Instance, Directory, HasTraits
 import threading
+import glob
 
-
+# TODO: Enable Live Mode
 class LoadImage(HasTraits, threading.Thread):
 
     def __init__(self, queue, dirpath):
@@ -22,15 +22,11 @@ class LoadImage(HasTraits, threading.Thread):
         self.backgroundenable = False
         self.daemon=True
 
-    def _performLoad(self):
+    def run(self):
+        print 'Live mode start'
         self.initLive()
         self.livemode()
-        return
-
-    def run(self):
-        #print 'Live mode start'
-        self._performLoad()
-        #print 'Live mode stop'
+        print 'Live mode stop'
         return
 
     def initLive(self):
@@ -38,14 +34,16 @@ class LoadImage(HasTraits, threading.Thread):
             if self.dirpath == '':
                 time.sleep(0.5)
             elif os.path.isdir(self.dirpath):
-                dirlist = os.listdir(self.dirpath)
+                self.filelist = glob.glob(self.dirpath + '/*.tif')
+                break
+                '''dirlist = os.listdir(self.dirpath)
                 for f in dirlist:
                     if f[-4:] == "tiff" or f[-3:] == "tif":
                         self.filelist.append(f)
                 break
             else:
                 print 'No data found or directory does not exist. (LoadImage)'
-
+                '''
         '''
         self.startime = time.time()
         self.lastmtime = os.path.getmtime(self.dirpath)
@@ -76,19 +74,12 @@ class LoadImage(HasTraits, threading.Thread):
 
         '''
         for i in range(len(self.filelist)):
-            self.jobqueue.put(['newimage', {'imagename':self.filelist[i]}])
+            self.jobqueue.put(['newimage', {'path':self.filelist[i]}])
+            print self.filelist[i]
             #print 'Image Process Sent'
             if i == 2:
                 self.jobqueue.put(['initcache'])
-            
-        # self.dirpath = ''
-        # self._performLoad()
         return
-
-    def getImage(self, imagecontainer):
-        '''return 2d ndarray image array'''
-        fo = fabio.open(imagecontainer.imagepath)
-        return fo.data
 
     def checkTime(self, tifpath):
         if tifpath != self.lasttifdirectory:
