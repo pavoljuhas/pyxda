@@ -1,21 +1,14 @@
 #!/usr/bin/env python
 
 import os
-<<<<<<< HEAD
-import fabio
-=======
 import numpy as np
 import re
->>>>>>> b7bad4b0fa82c7a6a603d3078f3cbcec0cc45e9a
 import time
 from enthought.traits.api import HasTraits
 import threading
 import glob
 
-<<<<<<< HEAD
-=======
 # TODO: Enable Live Mode
->>>>>>> b7bad4b0fa82c7a6a603d3078f3cbcec0cc45e9a
 class LoadImage(HasTraits, threading.Thread):
 
     def __init__(self, queue, dirpath):

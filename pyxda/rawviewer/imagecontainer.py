@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 
-<<<<<<< HEAD
-=======
 import numpy as np
 import scipy as sp
 import scipy.sparse as ssp
 import fabio
 import os
 from traits.api import HasTraits, Instance, Int
->>>>>>> b7bad4b0fa82c7a6a603d3078f3cbcec0cc45e9a
 from collections import deque
 
 class Image(object):

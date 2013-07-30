@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
-<<<<<<< HEAD
-from chaco.tools.api import PanTool, ZoomTool, LineInspector
-from chaco.api import ArrayPlotData, Plot, jet, BaseTool
-from traits.api import Any, HasTraits, Tuple
-                                
-class ImageIndexTool(BaseTool):
-=======
 from chaco.tools.api import PanTool, ZoomTool, LineInspector, ScatterInspector, \
                             RangeSelection, RangeSelectionOverlay, BroadcasterTool, \
                             LineSegmentTool
@@ -19,7 +12,6 @@ from chaco.api import ArrayPlotData, Plot, jet, BaseTool, add_default_axes, \
 from enable.api import BaseTool, KeySpec, ColorTrait, KeySpec
 from traits.api import Any, HasTraits, Instance, Tuple, Int, Event, Float, Property, \
                 cached_property, Str
->>>>>>> b7bad4b0fa82c7a6a603d3078f3cbcec0cc45e9a
 
 import numpy as np
 from modifiedzoom import ModifiedZoomTool
