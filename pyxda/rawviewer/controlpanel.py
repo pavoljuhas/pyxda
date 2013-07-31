@@ -11,6 +11,8 @@ class ControlPanel(HasTraits):
     '''Contains tools to interact with image.'''
     
     dirpath = Directory()
+    left_arrow = Button('<')
+    right_arrow = Button('>')
     reset = Button('Reset')
     generate = Button('Generate Reduced Representation Map')
     dirpath = Directory()
@@ -43,6 +45,7 @@ class ControlPanel(HasTraits):
                 show_border = True,
                 )
     
+    view = View(group)
 
 # TODO: Organize the metadata.
 class MetadataPanel(HasTraits):
@@ -121,5 +124,5 @@ class MetadataPanel(HasTraits):
     view = View(group, resizable=True)
 
 if __name__=='__main__':
-    #ControlPanel().configure_traits()
-    MetadataPanel().configure_traits()
+    ControlPanel().configure_traits()
+    #MetadataPanel().configure_traits()

@@ -6,7 +6,7 @@ from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit, \
 from traits.api import *
 from enable.api import ComponentEditor,Component, KeySpec
 from enthought.traits.ui.menu import NoButtons
-from chaco.api import ArrayPlotData, Plot, jet, GridContainer, HPlotContainer, \
+from chaco.api import ArrayPlotData, Plot, BarPlot, jet, GridContainer, HPlotContainer, \
                         VPlotContainer
 
 from rawviewer import RawViewer

@@ -14,7 +14,6 @@ from traits.api import Any, HasTraits, Instance, Tuple, Int, Event, Float, Prope
                 cached_property, Str
 
 import numpy as np
-from modifiedzoom import ModifiedZoomTool
 
 
 ####################
@@ -150,7 +149,6 @@ class Display(HasTraits, object):
             plot.line_color = 'black'
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
-            plot.value_range.low = 0
             add_default_grids(plot)
             plot.value_axis.title = "Histogram"
             self._appendHistogramTools(plot)
@@ -162,6 +160,11 @@ class Display(HasTraits, object):
             data = np.histogram(image.data, bins=10000)
             index = np.delete(data[1], data[1].size-1)
             values = data[0]
+            
+            plot.index_range.low= np.min(index)
+            plot.index_range.high = np.max(index)
+            plot.value_range.low = 0
+            plot.value_range.high = np.max(values)
 
             plot.data.set_data('x', index)
             plot.data.set_data('y', values)
@@ -264,7 +267,3 @@ class Display(HasTraits, object):
         plot.overlays.append(zoom)
         plot.tools.append(PanTool(plot))
         return
-
-
-        
-

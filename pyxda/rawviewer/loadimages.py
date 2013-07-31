@@ -4,7 +4,7 @@ import os
 import numpy as np
 import re
 import time
-from enthought.traits.api import HasTraits
+from enthought.traits.api import Dict, Instance, Directory, HasTraits
 import threading
 import glob
 
@@ -107,4 +107,3 @@ if __name__ == '__main__':
     output = getTiffImages(dirpath)
     print output
     '''
-
