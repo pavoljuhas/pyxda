@@ -7,7 +7,7 @@
 #                   Brookhaven National Laboratory, Upton, NY.
 #                   All rights reserved.
 #
-# File coded by:    <FileAuthor>
+# File coded by:    Michael Saltzman
 #
 # See AUTHORS.txt for a list of people who contributed.
 # See LICENSE.txt for license information.

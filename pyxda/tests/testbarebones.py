@@ -7,7 +7,7 @@
 #                   Brookhaven National Laboratory, Upton, NY.
 #                   All rights reserved.
 #
-# File coded by:    <FileAuthor>
+# File coded by:    Pavol Juhas
 #
 # See AUTHORS.txt for a list of people who contributed.
 # See LICENSE.txt for license information.
