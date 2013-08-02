@@ -19,12 +19,6 @@ from controlpanel import ControlPanel, MetadataPanel
 from imagecontainer import Image, ImageCache
 from loadimages import LoadImage
 
-####################
-
-SIZE = 12
-
-####################
-
 class RawViewer(HasTraits):
     
     ##############################################
@@ -60,20 +54,16 @@ class RawViewer(HasTraits):
         # TODO: Move to Display.
         self.add_trait('imageplot', Instance(Plot, 
                                         self.display.plotImage(self.pic)))
-        self.add_trait('plot1d', Instance(Plot,
-                                        self.display.plotHistogram(self.pic)))
-        self.plot1d.value_axis.title = "1D Cut"
         self.add_trait('histogram', Instance(Plot,
                                         self.display.plotHistogram(self.pic)))
+        self.add_trait('plot1d', Instance(Plot,
+                                        self.display.plot1DCut(self.pic)))
         self.newndx = -1
         return
     
     # TODO: Update
     def initCMap(self):
         self.hascmap = False
-        #TODO
-        #self.add_trait('rrplot', Instance(Plot, 
-        #                        self.display.plotRRMap(None, None)))
         self.rrplots = {}
 
     ##############################################
@@ -97,7 +87,7 @@ class RawViewer(HasTraits):
         self.imageplot = self.display.plotImage(self.pic, self.imageplot)
         #TODO
         self.histogram = self.display.plotHistogram(self.pic, self.histogram)
-        self.plot1d = self.display.plotHistogram(self.pic, None)
+        self.plot1d = self.display.plot1DCut(self.pic, self.plot1d)
         return
 
     # TODO
@@ -240,16 +230,18 @@ class RawViewer(HasTraits):
             return
 
         if rrchoice not in self.rrplots:
-            self.rrplots[rrchoice] = rrplot = self.display.plotRRMap(None, rrchoice, None)
+            self.rrplots[rrchoice] = rrplot = self.display.plotRRMap(np.array([0]), rrchoice, None)
         else:
             return
-
+        
+        rrdata = np.array([])
         print 'Generating Intensity Map........'
         for i, image in enumerate(self.datalist):
             image.load()
             print '%d: %s........Loaded' % (i, image.name)
             rr = f(image.data)
-            rrplot = self.display.plotRRMap(rr, rrchoice, rrplot)
+            rrdata = np.append(rrdata, rr)
+            rrplot = self.display.plotRRMap(rrdata, rrchoice, rrplot)
             image.data = None
 
         #self.hascmap = True

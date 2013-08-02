@@ -87,13 +87,13 @@ class UserInterface(HasTraits):
             for key in pic.metadata.keys():
                 setattr(self.mdpanel, key, pic.metadata[key])
         return
-    @on_trait_change('rawviewer.display.filename', post_init=True)
-    def _filename_changed(self):
-        print 'filename changed'
-        if self.rawviewer.display.filename == -1:
+    @on_trait_change('rawviewer.display.filenum', post_init=True)
+    def _filenum_changed(self):
+        print 'filenum changed'
+        if self.rawviewer.display.filenum == -1:
             self.cpanel.filename = ''
         else:
-            self.cpanel.filename = self.rawviewer.datalist[self.rawviewer.display.filename].name
+            self.cpanel.filename = self.rawviewer.datalist[self.rawviewer.display.filenum].name
 
     
     # TODO: Update
