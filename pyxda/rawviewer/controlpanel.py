@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+# coding=utf-8
+##############################################################################
+#
+# pyxda.srxes       X-ray Data Analysis Library
+#                   (c) 2013 National Synchrotron Light Source II,
+#                   Brookhaven National Laboratory, Upton, NY.
+#                   All rights reserved.
+#
+# File coded by:    Michael Saltzman
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
 
 from traits.api import HasTraits, Directory, Button, Int, Str, Enum
 from enthought.traits.ui.api import View, Item, Group, HGroup, HSplit, VGroup, \
@@ -129,5 +143,5 @@ class MetadataPanel(HasTraits):
     view = View(group, resizable=True)
 
 if __name__=='__main__':
-    #ControlPanel().configure_traits()
-    MetadataPanel().configure_traits()
+    ControlPanel().configure_traits()
+    #MetadataPanel().configure_traits()

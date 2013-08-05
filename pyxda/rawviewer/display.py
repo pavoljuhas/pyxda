@@ -1,5 +1,18 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*- 
+# coding=utf-8
+##############################################################################
+#
+# pyxda.srxes       X-ray Data Analysis Library
+#                   (c) 2013 National Synchrotron Light Source II,
+#                   Brookhaven National Laboratory, Upton, NY.
+#                   All rights reserved.
+#
+# File coded by:    Michael Saltzman
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
 
 from chaco.tools.api import PanTool, ZoomTool, LineInspector, ScatterInspector, \
                             RangeSelection, RangeSelectionOverlay
@@ -148,7 +161,6 @@ class Display(HasTraits, object):
             plot.line_color = 'black'
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
-            plot.value_range.low = 0
             add_default_grids(plot)
             plot.value_axis.title = "Histogram"
             self._appendHistogramTools(plot)

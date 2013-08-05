@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+# coding=utf-8
+##############################################################################
+#
+# pyxda.srxes       X-ray Data Analysis Library
+#                   (c) 2013 National Synchrotron Light Source II,
+#                   Brookhaven National Laboratory, Upton, NY.
+#                   All rights reserved.
+#
+# File coded by:    Michael Saltzman
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
 
 from traits.api import HasTraits, Instance, Directory
 from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit, \
@@ -6,7 +20,7 @@ from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit, \
 from traits.api import *
 from enable.api import ComponentEditor,Component, KeySpec
 from enthought.traits.ui.menu import NoButtons
-from chaco.api import ArrayPlotData, Plot, jet, GridContainer, HPlotContainer, \
+from chaco.api import ArrayPlotData, Plot, BarPlot, jet, GridContainer, HPlotContainer, \
                         VPlotContainer
 from chaco import default_colormaps
 

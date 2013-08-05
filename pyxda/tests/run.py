@@ -2,7 +2,10 @@
 # coding=utf-8
 ##############################################################################
 #
-# pyxda             X-ray Data Analysis Library
+# pyxda.srxes       X-ray Data Analysis Library
+#                   (c) 2013 National Synchrotron Light Source II,
+#                   Brookhaven National Laboratory, Upton, NY.
+#                   All rights reserved.
 #
 # File coded by:    Pavol Juhas
 #
