@@ -5,9 +5,10 @@ from enthought.traits.ui.api import View, Item, Group, HGroup, HSplit, VGroup, \
                                     Heading, DirectoryEditor, TitleEditor, VFlow, \
                                     VGrid, UItem
 from chaco.api import GridContainer
+from chaco import default_colormaps
 
 class ControlPanel(HasTraits):
-    '''Contains tools to interact with image.'''
+    '''Contains tools to interact with the data set.'''
     
     dirpath = Directory()
     left_arrow = Button('<')
@@ -15,32 +16,39 @@ class ControlPanel(HasTraits):
     reset = Button('Reset')
     generate = Button('Generate Reduced Representation Map')
     dirpath = Directory()
-    spacer = Str('              ')
+    spacer = Str('  ')
     index = Int(0)
     of = Str('of')
-    datalistlength = Int(0) 
+    datalistlength = Int(0)
+    spacer2 = Str('  ')
+    colormap = Enum(default_colormaps.color_map_name_dict.keys())
     rrchoice = Enum('Choose a Reduced Representation', 'Total Intensity', 'Mean', 'Standard Deviation', 'Pixels Above Upper Bound', 'Pixels Below Lower Bound')
     filename = Str('')
+
+    def _colormap_default(self): return 'jet'
 
     group = Group(
                 Item('dirpath', editor=DirectoryEditor(), show_label=False),
                 HGroup(
                     HGroup(
-                        Item('left_arrow', show_label = False), 
-                        Item('right_arrow', show_label = False),
+                        UItem('left_arrow'), 
+                        UItem('right_arrow'),
                         padding = 5
                           ),
-                    Item('spacer', show_label = False, style = 'readonly'),
+                    UItem('spacer', style='readonly'),
                     HGroup(
-                        Item('index', show_label = False, width=-30, height=-20),
-                        Item('of', show_label = False, style = 'readonly'),
-                        Item('datalistlength', show_label = False, style = 'readonly'),
+                        UItem('index', width=-30, height=-20),
+                        UItem('of', style='readonly'),
+                        UItem('datalistlength', style = 'readonly'),
                         padding = 5
-                          ) 
+                          ),
+                    UItem('spacer2', style='readonly'),
+                    UItem('colormap'),
+                    padding = 5
                       ),
-                Item('rrchoice', show_label = False),
-                Item('generate', show_label = False),
-                UItem('filename', style = 'readonly'),
+                UItem('rrchoice'),
+                UItem('generate'),
+                UItem('filename', style='readonly'),
                 show_border = True,
                 )
     
@@ -48,6 +56,7 @@ class ControlPanel(HasTraits):
 
 # TODO: Organize the metadata.
 class MetadataPanel(HasTraits):
+    '''Contains metadata about the currently viewed image.'''
     
     name = Str('2D Image')
     height = Str('')
@@ -58,7 +67,6 @@ class MetadataPanel(HasTraits):
     dataTypeName = Str('')
     fileBase = Str('')
     fileName = Str('')
-    #D:/DataQXRD/data/120809X17A/LiRh2O4_w2k_082K-00007.tif')
     title = Str('')
     readoutMode = Str('')
     summedExposures = Str('')
@@ -66,7 +74,6 @@ class MetadataPanel(HasTraits):
     phaseNumber = Str('')
     nPhases = Str('')
     dateTime = Str('')
-    #'@Variant(\\0\\0\\0\\x10\\0%zU\\x4\\xa6^\\x7f\\xff)')
     dateString=Str('')
     hBinning = Str('')
     vBinning = Str('')
@@ -78,7 +85,6 @@ class MetadataPanel(HasTraits):
     userComment4 = Str('')
     imageSaved = Str('')
     normalization = Str('')
-    #'@Variant(\\0\\0\\0\\x7f\\0\\0\\0\\xfQcepDoubleList\\0\\0\\0\\0\\0)')
     used = Str('')
     size = Str('')
 

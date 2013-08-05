@@ -305,6 +305,8 @@ class RawViewer(HasTraits):
                 self.resetViewer()
             elif jobtype == 'startload':
                 self.startLoad(*kwargs)
+            elif jobtype == 'updatecmap':
+                self.display.updateColorMap(*kwargs)
             jobdata = []
             self.jobqueue.task_done()
         return

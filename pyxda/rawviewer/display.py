@@ -6,8 +6,9 @@ from chaco.tools.api import PanTool, ZoomTool, LineInspector, ScatterInspector, 
 
 from chaco.api import ArrayPlotData, Plot, jet, BaseTool, add_default_axes, \
              add_default_grids, ScatterInspectorOverlay, LinearMapper, ColorBar
+from chaco import default_colormaps
 from enable.api import KeySpec
-from traits.api import Any, HasTraits, Instance, Int, Event
+from traits.api import Any, HasTraits, Instance, Int, Event, Trait, Callable
 import numpy as np
 
 class KBInputTool(BaseTool):
@@ -30,12 +31,14 @@ class Display(HasTraits, object):
     
     jobqueue -- the event queue
     filenum -- the index of the new file to be plotted (based on RR selection)
+    _cmap -- colormap for the imageplot
     '''
 
     def __init__(self, queue, **kwargs):
         super(Display, self).__init__()
         self.jobqueue = queue
         self.add_trait('filenum', Int())
+        self._cmap = jet
     
     def _arrow_callback(self, tool, n):
         '''Internal function used by KBInputTool to put events on queue'''
@@ -79,7 +82,8 @@ class Display(HasTraits, object):
             self.imageplot = plot
 
             # TODO: mess with color maps on else block    
-            imgPlot = plot.img_plot("imagedata", colormap=jet, name='image')[0]
+            imgPlot = plot.img_plot("imagedata", colormap=self._cmap, 
+                                                    name='image')[0]
             self.imgPlot = imgPlot
             self._appendImageTools(imgPlot)
         else:
@@ -315,4 +319,15 @@ class Display(HasTraits, object):
                             )
         plot.overlays.append(zoom)
         plot.zoom = zoom
+        return
+
+    def updateColorMap(self, cmap):
+        ''' Changes the colormap for the image plot.
+
+        cmap -- the new color scheme
+        '''
+        self._cmap = cmap
+        crange = self.imageplot.color_mapper.range
+        cmapper = default_colormaps.color_map_name_dict[self._cmap](crange)
+        self.imageplot.color_mapper = cmapper
         return

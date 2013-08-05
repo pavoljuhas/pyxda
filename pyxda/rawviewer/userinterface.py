@@ -8,6 +8,7 @@ from enable.api import ComponentEditor,Component, KeySpec
 from enthought.traits.ui.menu import NoButtons
 from chaco.api import ArrayPlotData, Plot, jet, GridContainer, HPlotContainer, \
                         VPlotContainer
+from chaco import default_colormaps
 
 from rawviewer import RawViewer
 from controlpanel import ControlPanel, MetadataPanel
@@ -77,6 +78,7 @@ class UserInterface(HasTraits):
     @on_trait_change('cpanel.dirpath', post_init=True)
     def _dirpath_changed(self):
         self.rawviewer.jobqueue.put(['startload', [self.cpanel.dirpath]])
+        return
     
     @on_trait_change('rawviewer.pic', post_init=True)
     def _pic_changed(self):
@@ -87,6 +89,7 @@ class UserInterface(HasTraits):
             for key in pic.metadata.keys():
                 setattr(self.mdpanel, key, pic.metadata[key])
         return
+
     @on_trait_change('rawviewer.display.filenum', post_init=True)
     def _filenum_changed(self):
         print 'filenum changed'
@@ -94,8 +97,13 @@ class UserInterface(HasTraits):
             self.cpanel.filename = ''
         else:
             self.cpanel.filename = self.rawviewer.datalist[self.rawviewer.display.filenum].name
+        return
 
-    
+    @on_trait_change('cpanel.colormap', post_init=True)
+    def _colormap_changed(self):
+        self.rawviewer.jobqueue.put(['updatecmap', [self.cpanel.colormap]])
+        return
+
     # TODO: Update
     def createImagePanel(self):
         cont = VPlotContainer(stack_order = 'top_to_bottom',
