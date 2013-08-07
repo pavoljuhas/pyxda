@@ -14,9 +14,8 @@
 #
 ##############################################################################
 
-from chaco.tools.api import PanTool, ZoomTool, LineInspector, ScatterInspector, \
-                            RangeSelection, RangeSelectionOverlay
-
+from chaco.tools.api import PanTool, ZoomTool, LineInspector, \
+            ScatterInspector, RangeSelection, RangeSelectionOverlay
 from chaco.api import ArrayPlotData, Plot, jet, BaseTool, add_default_axes, \
              add_default_grids, ScatterInspectorOverlay, LinearMapper, ColorBar
 from chaco import default_colormaps
@@ -45,6 +44,7 @@ class Display(HasTraits, object):
     jobqueue -- the event queue
     filenum -- the index of the new file to be plotted (based on RR selection)
     _cmap -- colormap for the imageplot
+    _selection -- the range of the highlighted region drawn on the histogram
     '''
 
     def __init__(self, queue, **kwargs):
@@ -52,6 +52,7 @@ class Display(HasTraits, object):
         self.jobqueue = queue
         self.add_trait('filenum', Int())
         self._cmap = jet
+        self._selection = None
     
     def _arrow_callback(self, tool, n):
         '''Internal function used by KBInputTool to put events on queue'''
@@ -61,8 +62,14 @@ class Display(HasTraits, object):
             self.jobqueue.put(['updatecache', ['left']])
 
     def _metadata_handler(self):
-        '''Handles hover/click selections made in the RR plots'''
-
+        '''Handles hover/click selections made in the RR plots
+        
+        Hovering over a point displays the filename of the image that point 
+        represents in the control panel above. Clicking a point will display 
+        the image that point represents on the left panel. Multiple click
+        selections can be made but only the last selected image will be 
+        displayed.
+        '''
         sel_indices = self.index_datasource.metadata.get('selections', [])
         hover_indices = self.index_datasource.metadata.get('hover', [])
         print "Selection indices:", sel_indices
@@ -79,9 +86,11 @@ class Display(HasTraits, object):
 
     def plotImage(self, image, plot=None):
         '''Plots a tiff image.
+
         image -- Image object
         plot  -- plot instance to be updated 
                  if None, a plot instance will be created
+
         Returns the plot instance.
         '''
         if plot == None:
@@ -94,7 +103,6 @@ class Display(HasTraits, object):
             plot.y_axis.visible = False
             self.imageplot = plot
 
-            # TODO: mess with color maps on else block    
             imgPlot = plot.img_plot("imagedata", colormap=self._cmap, 
                                                     name='image')[0]
             self.imgPlot = imgPlot
@@ -107,15 +115,17 @@ class Display(HasTraits, object):
 
     def plotRRMap(self, ydata, title, plot=None):
         '''Plots an RR map.
+
         ydata -- y-data to be plotted
         title -- RR type, to be displayed on y-axis
         plot  -- plot instance to be updated 
                  if None, a plot instance will be created
+
         Returns the plot instance.
         '''
         if plot == None:
             pd = ArrayPlotData()
-            plot = Plot(pd, padding=(70, 5, 0, 0))
+            plot = Plot(pd, padding=(79, 5, 0, 0))
             self._setData(ydata, None, plot)
             plot.plot(('x', 'y'), name='rrplot', type="scatter", color='green',
                       marker="circle", marker_size=6)
@@ -123,7 +133,8 @@ class Display(HasTraits, object):
             plot.bgcolor = 'white'
             plot.aspect_ratio = 2.5
             plot.fixed_preferred_size = (100, 50)
-            left, bottom = add_default_axes(plot)
+            plot.y_axis.tick_label_formatter = lambda val:('%.2E'%val)
+            plot.x_axis.visible = False
             hgrid, vgrid = add_default_grids(plot)
             self._appendRRTools(plot)
         else:
@@ -133,11 +144,13 @@ class Display(HasTraits, object):
 
     def _setData(self, ydata, xdata, plot):
         '''Convenience method for setting data in 1D plots.
+
         If xdata is None, then the x values are set to the indices of the ydata.
 
         ydata -- numpy array of y values
         xdata -- numpy array of x values
         plot -- plot instance to be updated
+
         Returns the plot instance.
         '''
         if xdata == None:
@@ -148,25 +161,26 @@ class Display(HasTraits, object):
         return
 
     def plotHistogram(self, image, plot=None):
-        '''Plots a histogram
+        '''Plots a histogram.
+
         image -- Image object
         plot  -- plot instance to be updated 
                  if None, a plot instance will be created
+
         Returns the plot instance.
         '''
         if plot == None:
             pd = ArrayPlotData(y=np.array([0]), x=np.array([0]))
             plot = Plot(pd, padding=(70, 10, 0, 0))
-            plot.plot(('x', 'y'), name='Histogram', type='bar', bar_width=5.0)
+            plot.plot(('x', 'y'), name='Histogram', type='bar', bar_width=1.0)
             plot.line_color = 'black'
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
             add_default_grids(plot)
+            plot.value_range.low = 0
             plot.value_axis.title = "Histogram"
             self._appendHistogramTools(plot)
             
-            #plot.overlays.append(PlotAxis(plot, orientation='left'))
-            #plot.overlays.append(PlotAxis(plot, orientation='bottom'))
         else:
             data = np.histogram(image.data, bins=10000)
             index = np.delete(data[1], data[1].size-1)
@@ -176,17 +190,22 @@ class Display(HasTraits, object):
         return plot
 
     def plot1DCut(self, image, plot=None):
-        '''Plots a histogram
+        '''Plots a 1D cut of the image.
+
+        Currently, the 1D cut is a plot of mean intensity vs column #.
+
         image -- Image object
         plot  -- plot instance to be updated 
                  if None, a plot instance will be created
+
         Returns the plot instance.
         '''
         if plot == None:
             pd = ArrayPlotData(y=np.array([0]), x=np.array([0]))
-            plot = Plot(pd, padding=(70, 10, 0, 0))
+            plot = Plot(pd, padding=(70, 10, 0, 5))
             plot.plot(('x', 'y'), name='1D Cut', type='line', color='blue')
             plot.value_axis.title = '1D Cut'
+            plot.x_axis.visible = False
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
             plot.value_range.low = 0
@@ -200,10 +219,12 @@ class Display(HasTraits, object):
 
     def _appendImageTools(self, plot):
         '''Attach zoom, pan, arrow key input, and colorbar to image.
+
         Zoom Controls: 'z' = ROI selection
                        'n' = backwards in zoom history
                        'm' = forwards in zoom history
                        mouse scroll = zoom in/out
+
         plot -- instance of ImagePlot to be given tools
         '''
         plot.tools.append(PanTool(plot))
@@ -263,9 +284,8 @@ class Display(HasTraits, object):
         
         my_plot = plot.plots["Histogram"][0]
 
-        selected = Event()
-        self.range_selection = RangeSelection(component=my_plot, selection_completed = selected)
-        self.range_selection.on_trait_change(self._selection_changed, 'selection_completed')
+        self.range_selection = RangeSelection(component=my_plot)
+        self.sync_trait('_selection', self.range_selection)
 
         my_plot.tools.append(self.range_selection)
 
@@ -276,12 +296,6 @@ class Display(HasTraits, object):
         my_plot.overlays.append(rangeselect)
         self.range_selection.listeners.append(self.imgPlot)
         return
-
-    def _selection_changed(self):
-        print 'Region highlighted'
-        print self.range_selection._selection
-        return
-
 
     def _appendRRTools(self, plot):
         '''Attach zoom, pan, and ScatterInspector to plot.

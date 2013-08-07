@@ -14,10 +14,9 @@
 #
 ##############################################################################
 
-# EDIT IMPORTS AT END
 import chaco.api
 from enthought.traits.api import HasTraits, Instance, \
-                                Dict, Event, Int, List, Bool, String
+                                Dict, Event, Int, List, Bool, String, Str
 from chaco.api import ArrayPlotData, Plot, jet
 import traitsui.api
 import enable.api
@@ -27,19 +26,20 @@ import fabio
 import Queue
 import threading
 import time
+import os
 
 from display import Display
 from controlpanel import ControlPanel, MetadataPanel
-from imagecontainer import Image, ImageCache
+from image import Image, ImageCache
 from loadimages import LoadImage
 
-class RawViewer(HasTraits):
+class ProcessCenter(HasTraits):
     
     ##############################################
     # Initialize
     ##############################################
     def __init__(self, **kwargs):
-        super(RawViewer, self).__init__()
+        super(ProcessCenter, self).__init__()
         
         self.processing_job = threading.Thread(target=self.processJob)
         self.processing_job.daemon = True
@@ -47,16 +47,16 @@ class RawViewer(HasTraits):
         self.jobqueue = Queue.Queue()
         self.add_trait('datalist', List())
         self.add_trait('datalistlength', Int(0))
+        self.add_trait('message', Str(''))
         
         self.on_trait_change(self.plotData, 'pic', dispatch='new')
-        self.on_trait_change(self.datalistLengthAdd,'datalistlengthadd', dispatch='ui')
        
-        self.initLoadimage()
+        self.initLoadImage()
         self.initDisplay()
         self.initCMap()
         return
     
-    def initLoadimage(self):
+    def initLoadImage(self):
         self.cache = ImageCache()
         self.add_trait('pic', Instance(Image, Image(-1, '')))
         self.pic.data = np.zeros((2048, 2048))
@@ -77,7 +77,6 @@ class RawViewer(HasTraits):
     
     # TODO: Update
     def initCMap(self):
-        self.hascmap = False
         self.rrplots = {}
 
     ##############################################
@@ -87,13 +86,16 @@ class RawViewer(HasTraits):
         '''add new image and create jobs to process new image
         image:    2d ndarray, new 2d image array
         '''
-        print 'Image Added'
-        listn = len(self.datalist)
-        self.datalist.append(Image(listn, path))
+        print 'Image Added:'
+        n = len(self.datalist)
+        self.datalist.append(Image(n, path))
         self.hasImage = True
-        self.jobqueue.put(['datalistlengthadd'])
+        self.datalistlength += 1
+        
+        if not self.datalist[n].metadata:
+            self.message = 'No metadata found for %s.' % os.path.split(path)[1]
+            print self.message
         return
-   
     
     def plotData(self):
         print 'Plot Data'
@@ -104,24 +106,14 @@ class RawViewer(HasTraits):
         self.plot1d = self.display.plot1DCut(self.pic, self.plot1d)
         return
 
-    # TODO
-    datalistlengthadd = Event
-    def datalistLengthAdd(self):
-        '''add datalistlength by 1, only use this method to modify the datalistlength
-        otherwise there will be some problem of frame range in UI
-        '''
-        #print 'DataListLengthAdd'
-        self.datalistlength += 1
-        return
-
     def startLoad(self, dirpath):
         print 'Load Started'
         if self.hasImage == True:
             self.resetViewer()
         self.loadimage = LoadImage(self.jobqueue, dirpath)
         self.loadimage.start()
-    
-    # TODO: not as important
+        return
+
     def initCache(self):
         print 'Init Cache'
         self.pic = self.datalist[0]
@@ -135,9 +127,6 @@ class RawViewer(HasTraits):
         print 'Change Index'
         self.newndx = newndx
 
-        #if self.hascmap == False:
-        #    return
-        
         currentpos = self.pic.n
 
         if newndx - currentpos == -1:
@@ -159,12 +148,15 @@ class RawViewer(HasTraits):
         print self.cache
         n = self.pic.n
         if n == -1:
-            print 'Cannot traverse ' + strnext
+            self.message = 'WARNING: No images loaded.'
+            print self.message
             return
         if strnext == 'left':
             self.newndx = n - 1
             print '%d -> %d' % (n, self.newndx)
             if n == 0:
+                self.message = 'WARNING: Cannot traverse LEFT.'
+                print self.message
                 return
             else:
                 self._innerCache(n, -1)
@@ -172,6 +164,8 @@ class RawViewer(HasTraits):
             self.newndx = n + 1
             print '%d -> %d' % (n, self.newndx)
             if n == self.datalistlength - 1:
+                self.message = 'WARNING: Cannot traverse RIGHT.'
+                print self.message
                 return
             else:
                 self.cache.reverse()
@@ -184,28 +178,12 @@ class RawViewer(HasTraits):
                 self.initCache()
             else:
                 self.pic = self.datalist[self.newndx]
-
                 self.cache.append(self.datalist[self.newndx-1])
                 self.cache.append(self.pic)
-                if self.newndx is not self.datalistlength - 1:
+                if self.newndx != self.datalistlength - 1:
                     self.cache.append(self.datalist[self.newndx+1])
                 else:
                     self.cache.append(Image(-1, ''))
-
-            '''
-                for i in range(2):
-                    n = self.newndx - i
-                    pic = self.datalist[n]
-                    self.cache.appendleft(pic)
-                    if i == 0:
-                        self.pic = pic
-                        self.plotnow = {}
-                if self.newndx is not self.datalistlength - 1:
-                    temp = self.datalist[self.newndx+1]
-                    self.cache.append(temp)
-                else:
-                    self.cache.append(Image(-1, ''))
-            '''
         print self.cache
         return
 
@@ -221,11 +199,30 @@ class RawViewer(HasTraits):
             self.cache.pop()
         return
 
+    def countDeadPixels(self, image):
+        selection = self.display._selection
+        data = image.ravel()
+        limit = selection[0]
+        count = np.count_nonzero(data < limit)
+        rv = count/float(np.size(data))
+        return rv*100
+
+    def countSatPixels(self, image):
+        selection = self.display._selection
+        data = image.ravel()
+        limit = selection[1]
+        count = np.count_nonzero(data > limit)
+        rv = count/float(np.size(data))
+        return rv*100
+
     def createRRPlot(self, rrchoice):
-        if self.datalistlength is 0 or self.hascmap is True:
-            print 'Intensity Map Cannot be (Re)created.......'
+        if self.datalistlength == 0:
+            self.message = 'WARNING: RR Plot Cannot be (Re)created'
+            print self.message
             return
         elif rrchoice == 'Choose a Reduced Representation':
+            self.message = 'WARNING: No RR selected.'
+            print self.message
             return
 
         if rrchoice == 'Mean':
@@ -237,42 +234,54 @@ class RawViewer(HasTraits):
         elif rrchoice == 'Standard Deviation':
             f = lambda x: np.std(x)
 
-        elif rrchoice == 'Pixels Above Upper Bound':
-            return
+        elif rrchoice == 'Percentage of Dead Pixels':
+            if self.display._selection != None:
+                f = self.countDeadPixels
+            else:
+                self.message = 'A range selection must be chosen.'
+                print self.message
+                return
 
-        elif rrchoice == 'Pixels Below Lower Bound':
-            return
+        elif rrchoice == 'Percentage of Saturated Pixels':
+            if self.display._selection != None:
+                f = self.countSatPixels
+            else:
+                self.message = 'A range selection must be chosen.'
+                print self.message
+                return
 
         if rrchoice not in self.rrplots:
-            self.rrplots[rrchoice] = rrplot = self.display.plotRRMap(np.array([0]), rrchoice, None)
+            self.rrplots[rrchoice] = rrplot = self.display.plotRRMap(
+                                                np.array([0]), rrchoice, None)
         else:
             return
         
         rrdata = np.array([])
-        print 'Generating Intensity Map........'
+        self.message = 'Generating RR Plot........'
+        print self.message
         for i, image in enumerate(self.datalist):
             image.load()
-            print '%d: %s........Loaded' % (i, image.name)
+            self.message = '%d: %s........Loaded' % (i+1, image.name)
+            print self.message
             rr = f(image.data)
             rrdata = np.append(rrdata, rr)
             rrplot = self.display.plotRRMap(rrdata, rrchoice, rrplot)
             image.data = None
 
-        #self.hascmap = True
-        print 'Loading Complete'
+        self.message = 'Loading Complete.'
+        print self.message
         return
 
     def resetViewer(self):
         print 'Reset'
-        if self.hasImage == False:
-            return
 
-        #self.mapdata = np.zeros((SIZE, SIZE))
         self.rrplots = {}
-        #self.rrplot = self.display.plotImage(None, 'Total Intensity Map')
-        self.hascmap = False
         self.hasImage = False
         self.newndx = -1
+        self.message = ''
+        img = Image(-1, '')
+        img.data = np.zeros((2048, 2048))
+        self.pic = img
 
         with self.jobqueue.mutex:
             self.jobqueue.queue.clear()
@@ -295,20 +304,18 @@ class RawViewer(HasTraits):
     
     def processJob(self):
         while True:
-            #retrieve job data
+            # retrieve job data
             jobdata = self.jobqueue.get(block=True)
             jobtype = jobdata[0]
             kwargs = jobdata[1] if len(jobdata)==2 else {}
             
-            #deal with different jobs
+            # deal with different jobs
             if jobtype == 'newimage':
                 self.addNewImage(**kwargs)
             elif jobtype == 'updatecache':
                 self.updateCache(*kwargs)
             elif jobtype == 'plotdata':
                 self.plotnow = kwargs
-            elif jobtype == 'datalistlengthadd':
-                self.datalistlengthadd = True
             elif jobtype == 'initcache':
                 self.initCache()
             elif jobtype == 'plotrr':
@@ -321,6 +328,8 @@ class RawViewer(HasTraits):
                 self.startLoad(*kwargs)
             elif jobtype == 'updatecmap':
                 self.display.updateColorMap(*kwargs)
+            elif jobtype == 'updatemsg':
+                self.message = jobdata[1]
             jobdata = []
             self.jobqueue.task_done()
         return

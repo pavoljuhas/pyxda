@@ -33,6 +33,6 @@ setup(
         ],
         entry_points = {
           'console_scripts': ['pyxda = pyxda.commandline:main', 
-                              'rawviewer = pyxda.rawviewer.userinterface:main'],
+                              'srxes = pyxda.srxes.userinterface:main'],
       },
 )

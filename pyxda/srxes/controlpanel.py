@@ -15,10 +15,8 @@
 ##############################################################################
 
 from traits.api import HasTraits, Directory, Button, Int, Str, Enum
-from enthought.traits.ui.api import View, Item, Group, HGroup, HSplit, VGroup, \
-                                    Heading, DirectoryEditor, TitleEditor, VFlow, \
-                                    VGrid, UItem
-from chaco.api import GridContainer
+from traitsui.api import View, Item, Group, HGroup, VGroup, DirectoryEditor, \
+                            TitleEditor, VGrid, UItem
 from chaco import default_colormaps
 
 class ControlPanel(HasTraits):
@@ -28,7 +26,7 @@ class ControlPanel(HasTraits):
     left_arrow = Button('<')
     right_arrow = Button('>')
     reset = Button('Reset')
-    generate = Button('Generate Reduced Representation Map')
+    generate = Button('Generate Reduced Representation Plot')
     dirpath = Directory()
     spacer = Str('  ')
     index = Int(0)
@@ -36,13 +34,16 @@ class ControlPanel(HasTraits):
     datalistlength = Int(0)
     spacer2 = Str('  ')
     colormap = Enum(default_colormaps.color_map_name_dict.keys())
-    rrchoice = Enum('Choose a Reduced Representation', 'Total Intensity', 'Mean', 'Standard Deviation', 'Pixels Above Upper Bound', 'Pixels Below Lower Bound')
-    filename = Str('')
+    rrchoice = Enum('Choose a Reduced Representation', 'Total Intensity',
+                'Mean', 'Standard Deviation', 'Percentage of Dead Pixels',
+                'Percentage of Saturated Pixels')
+    message = Str('')
 
     def _colormap_default(self): return 'jet'
 
     group = Group(
-                Item('dirpath', editor=DirectoryEditor(), show_label=False),
+                UItem('dirpath', id='dirpath', 
+                                        editor=DirectoryEditor(entries=5)),
                 HGroup(
                     HGroup(
                         UItem('left_arrow'), 
@@ -60,13 +61,15 @@ class ControlPanel(HasTraits):
                     UItem('colormap'),
                     padding = 5
                       ),
-                UItem('rrchoice'),
-                UItem('generate'),
-                UItem('filename', style='readonly'),
+                VGroup(
+                    UItem('rrchoice'),
+                    UItem('generate'),
+                      ),
+                UItem('message', style='readonly'),
                 show_border = True,
                 )
     
-    view = View(group)
+    view = View(group, id='pyxda.srxes.cpanel')
 
 # TODO: Organize the metadata.
 class MetadataPanel(HasTraits):
@@ -103,45 +106,49 @@ class MetadataPanel(HasTraits):
     size = Str('')
 
     group = Group(
-                Item('name', editor=TitleEditor(), show_label=False),
-                VGrid(
-                    Item('height'),
-                    Item('width'),
-                    Item('qxrdVersion'),
-                    Item('qtVersion'),
-                    Item('dataType'),
-                    Item('dataTypeName'),
-                    Item('fileBase'),
-                    Item('fileName'),
-                    Item('title'),
-                    Item('readoutMode'),
-                    Item('summedExposures'),
-                    Item('imageNumber'),
-                    Item('phaseNumber'),
-                    Item('nPhases'),
-                    Item('dateTime'),
-                    Item('dateString'),
-                    Item('hBinning'),
-                    Item('vBinning'),
-                    Item('cameraGain'),
-                    Item('triggered'),
-                    Item('userComment1'),
-                    Item('userComment2'),
-                    Item('userComment3'),
-                    Item('userComment4'),
-                    Item('imageSaved'),
-                    Item('normalization'),
-                    Item('used'),
-                    Item('size'),
-                    show_border = True,
-                    show_labels = True,
-                    style = 'readonly',
-                    columns = 3
-                    )
+                UItem('name', editor=TitleEditor()),
+                Group(
+                    VGrid(
+                        Item('height'),
+                        Item('width'),
+                        Item('qxrdVersion'),
+                        Item('qtVersion'),
+                        Item('dataType'),
+                        Item('dataTypeName'),
+                        Item('fileBase'),
+                        Item('fileName'),
+                        Item('title'),
+                        Item('readoutMode'),
+                        Item('summedExposures'),
+                        Item('imageNumber'),
+                        Item('phaseNumber'),
+                        Item('nPhases'),
+                        Item('dateTime'),
+                        Item('dateString'),
+                        Item('hBinning'),
+                        Item('vBinning'),
+                        Item('cameraGain'),
+                        Item('triggered'),
+                        Item('userComment1'),
+                        Item('userComment2'),
+                        Item('userComment3'),
+                        Item('userComment4'),
+                        Item('imageSaved'),
+                        Item('normalization'),
+                        Item('used'),
+                        Item('size'),
+                        show_labels = True,
+                        style = 'readonly',
+                        columns = 2,
+                        scrollable = True,
+                        ),
+                    show_labels = False,
+                    show_border = True
+                     )
                 )
 
-    view = View(group, resizable=True)
+    view = View(group, height=150, width=700, resizable=True)
 
 if __name__=='__main__':
-    ControlPanel().configure_traits()
-    #MetadataPanel().configure_traits()
+    #ControlPanel().configure_traits()
+    MetadataPanel().configure_traits()

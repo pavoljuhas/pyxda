@@ -14,33 +14,42 @@
 #
 ##############################################################################
 
-from traits.api import HasTraits, Instance, Directory
-from enthought.traits.ui.api import View,Item, Group, HSplit, Handler, VSplit, \
-                    HGroup, VGroup, InstanceEditor, UItem
 from traits.api import *
-from enable.api import ComponentEditor,Component, KeySpec
-from enthought.traits.ui.menu import NoButtons
-from chaco.api import ArrayPlotData, Plot, BarPlot, jet, GridContainer, HPlotContainer, \
-                        VPlotContainer
+from traitsui.api import View, Item, Group, HSplit, VSplit, VGroup, UItem
+from enable.api import ComponentEditor, Component
+from chaco.api import GridContainer, HPlotContainer, VPlotContainer
 from chaco import default_colormaps
+from pyface.api import ImageResource
 
-from rawviewer import RawViewer
 from controlpanel import ControlPanel, MetadataPanel
+from processcenter import ProcessCenter
 from display import Display
-from handler import PyXDAHandler
+
 import sys
 import time
+import os
+
+ICON = ImageResource('logo.ico', search_path=[os.path.dirname(__file__)])
 
 class UserInterface(HasTraits):
+    '''A user interface that handles interactions with the images/data.
+    
+    control -- JobControl object that handles the internal functionality
+    cpanel -- contains tools to interact with the data,shown in upper right
+    mdpanel -- contains the metadata for the image, shown in lower left
+    imagepanel -- contains all of the image related plots, shown on left
+    rrpanel -- contains the RR plots that have been generated, shown on right
+    '''
 
     def __init__(self, **kwargs):
         super(UserInterface, self).__init__()
-        self.add_trait('rawviewer', RawViewer())
+        self.add_trait('process', ProcessCenter())
         self.add_trait('cpanel', ControlPanel())
         self.add_trait('mdpanel', MetadataPanel())
 
-        self.rawviewer.startProcessJob()
-        self.cpanel.sync_trait('datalistlength', self.rawviewer)
+        self.process.startProcessJob()
+        self.cpanel.sync_trait('datalistlength', self.process)
+        self.cpanel.sync_trait('message', self.process)
 
         self.imagepanel = Instance(Component)
         self.createImagePanel()
@@ -49,13 +58,15 @@ class UserInterface(HasTraits):
                                         resizeable='', use_backbuffer=True,
                                         bgcolor='transparent')
         self.rrpanel.get_preferred_size()
+        return
 
-    # TODO: Adjust view
     view = View(
              HSplit(
                VSplit(
-                    UItem('imagepanel', editor=ComponentEditor(), padding=0),
-                    UItem('mdpanel', style="custom", padding=5, height=85, width=700),
+                    UItem('imagepanel', editor=ComponentEditor(), 
+                                            padding=0, height=0.825),
+                    UItem('mdpanel', style="custom", height=127, width=700,
+                                            resizable=True),
                      ),
                VGroup(
                     UItem('cpanel', style="custom", width=-430, padding=10),
@@ -65,38 +76,43 @@ class UserInterface(HasTraits):
                   ),
             resizable = True,
             height = 0.96, width = 1.0,
-            handler = PyXDAHandler(),
-            buttons = NoButtons,
-            title = 'Raw Viewer')
+            title = 'SrXes',
+            icon = ICON
+            )
 
     #############################
     # UI Action Handling
     #############################
     @on_trait_change('cpanel.left_arrow', post_init=True)
     def _left_arrow_fired(self):
-        self.rawviewer.jobqueue.put(['updatecache', ['left']])
+        '''Left arrow/key pressed. Sends request to load previous image.'''
+        self.process.jobqueue.put(['updatecache', ['left']])
         return
     
     @on_trait_change('cpanel.right_arrow', post_init=True)
     def _right_arrow_fired(self):
-        self.rawviewer.jobqueue.put(['updatecache', ['right']])
+        '''Right arrow/key pressed. Sends request to load next image.'''
+        self.process.jobqueue.put(['updatecache', ['right']])
         return
     
     @on_trait_change('cpanel.generate', post_init=True)
     def _generate_fired(self):
-        self.rawviewer.jobqueue.put(['plotrr', [self.cpanel.rrchoice]])
+        '''Generate pressed. Sends request to create specified RR plot.'''
+        self.process.jobqueue.put(['plotrr', [self.cpanel.rrchoice]])
         time.sleep(0.5)
         self.updateRRPanel(self.cpanel.rrchoice)
         return
     
     @on_trait_change('cpanel.dirpath', post_init=True)
     def _dirpath_changed(self):
-        self.rawviewer.jobqueue.put(['startload', [self.cpanel.dirpath]])
+        '''A directory has been chosen. Sends request to start load thread.'''
+        self.process.jobqueue.put(['startload', [self.cpanel.dirpath]])
         return
     
-    @on_trait_change('rawviewer.pic', post_init=True)
+    @on_trait_change('process.pic', post_init=True)
     def _pic_changed(self):
-        pic =  self.rawviewer.pic
+        '''Updates the index and metadata when the current image changes.'''
+        pic =  self.process.pic
         self.cpanel.index = pic.n + 1
         self.mdpanel.name = pic.name
         if pic.metadata:
@@ -104,37 +120,46 @@ class UserInterface(HasTraits):
                 setattr(self.mdpanel, key, pic.metadata[key])
         return
 
-    @on_trait_change('rawviewer.display.filenum', post_init=True)
+    @on_trait_change('process.display.filenum', post_init=True)
     def _filenum_changed(self):
+        '''Handles interactions with the RR plots. When a point is hovered
+        over, its filename is displayed in the control panel.
+        '''
         print 'filenum changed'
-        if self.rawviewer.display.filenum == -1:
-            self.cpanel.filename = ''
+        n = self.process.display.filenum
+        if n == -1:
+            self.cpanel.message = ''
         else:
-            self.cpanel.filename = self.rawviewer.datalist[self.rawviewer.display.filenum].name
+            name = self.process.datalist[n].name
+            self.cpanel.message = '%d: %s' % (n+1, name)
         return
 
     @on_trait_change('cpanel.colormap', post_init=True)
     def _colormap_changed(self):
-        self.rawviewer.jobqueue.put(['updatecmap', [self.cpanel.colormap]])
+        '''A new colormap has been selected. Sends request to update cmap.'''
+        self.process.jobqueue.put(['updatecmap', [self.cpanel.colormap]])
         return
 
     # TODO: Update
     def createImagePanel(self):
+        '''Creates the image panel and fills it with the associated plots. 
+        The plots included are the image plot, histogram, and 1D plot. Data
+        can be set for these plots without changing the Plot objects.
+        '''
         cont = VPlotContainer(stack_order = 'top_to_bottom',
                                 bgcolor = 'transparent',
                                 use_backbuffer=True)
 
-        imageplot = getattr(self.rawviewer, 'imageplot')
-        colorbar = getattr(self.rawviewer.display, 'colorbar')
-        histogram = getattr(self.rawviewer, 'histogram')
-        plot1d = getattr(self.rawviewer, 'plot1d')
+        imageplot = getattr(self.process, 'imageplot')
+        colorbar = getattr(self.process.display, 'colorbar')
+        histogram = getattr(self.process, 'histogram')
+        plot1d = getattr(self.process, 'plot1d')
 
         imgcont = HPlotContainer(imageplot, colorbar, bgcolor = 'transparent',
                                     spacing = 20.0)
         cont.add(imgcont)
         cont.add(histogram)
         cont.add(plot1d)
-
         
         self.imagepanel = cont
         self.imagepanel.get_preferred_size()
@@ -142,10 +167,20 @@ class UserInterface(HasTraits):
         return
 
     def updateRRPanel(self, choice):
-        rrplots = getattr(self.rawviewer, 'rrplots')
+        '''Fills the rrpanel with new RR plots.
+
+        choice -- the name of the RR to check for
+        '''
+        rrplots = getattr(self.process, 'rrplots')
         
-        if rrplots[choice] not in self.rrpanel._components:
-            self.rrpanel.add(rrplots[choice])
+        try:
+            if rrplots[choice] not in self.rrpanel._components:
+                self.rrpanel.add(rrplots[choice])
+        except KeyError: 
+            return
+
+        if len(self.rrpanel._components) > 3:
+            self.rrpanel.remove(self.rrpanel._components[0])
 
         self.rrpanel.invalidate_and_redraw()
         return
