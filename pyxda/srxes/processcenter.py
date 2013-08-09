@@ -100,9 +100,9 @@ class ProcessCenter(HasTraits):
         
         path -- the filepath of the image
 
-        Warning: If there is no associated metadata file of the form
-        path.metadata, then there is a message displayed.
-            No metadata found for <filename>.
+        No return value.
+        Displays warning if there is no associated metadata file
+        named path.metadata.
         '''
         #print 'Image Added:'
         n = len(self.datalist)
