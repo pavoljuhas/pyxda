@@ -41,10 +41,11 @@ class KBInputTool(BaseTool):
 class Display(HasTraits, object):
     '''Handles creation/modification of the plots in the GUI.
     
-    jobqueue -- the event queue
-    filenum -- the index of the new file to be plotted (based on RR selection)
-    cmap -- colormap for the imageplot
-    _selection -- the range of the highlighted region drawn on the histogram
+    |  jobqueue -- the event queue
+    |  filenum -- the index of the new file to be plotted (based on 
+    |             RR selection)
+    |  cmap -- colormap for the imageplot
+    |  _selection -- the range of the highlighted region drawn on the histogram
     '''
 
     def __init__(self, queue, **kwargs):
@@ -87,9 +88,9 @@ class Display(HasTraits, object):
     def plotImage(self, image, plot=None):
         '''Plots a tiff image.
 
-        image -- Image object
-        plot  -- plot instance to be updated 
-                 if None, a plot instance will be created
+        |  image -- Image object
+        |  plot  -- plot instance to be updated 
+        |           if None, a plot instance will be created
 
         Returns the plot instance.
         '''
@@ -116,10 +117,10 @@ class Display(HasTraits, object):
     def plotRRMap(self, ydata, title, plot=None):
         '''Plots an RR map.
 
-        ydata -- y-data to be plotted
-        title -- RR type, to be displayed on y-axis
-        plot  -- plot instance to be updated 
-                 if None, a plot instance will be created
+        |  ydata -- y-data to be plotted
+        |  title -- RR type, to be displayed on y-axis
+        |  plot  -- plot instance to be updated 
+        |           if None, a plot instance will be created
 
         Returns the plot instance.
         '''
@@ -147,9 +148,9 @@ class Display(HasTraits, object):
 
         If xdata is None, then the x values are set to the indices of ydata.
 
-        ydata -- numpy array of y values
-        xdata -- numpy array of x values
-        plot -- plot instance to be updated
+        |  ydata -- numpy array of y values
+        |  xdata -- numpy array of x values
+        |  plot -- plot instance to be updated
 
         Returns the plot instance.
         '''
@@ -163,9 +164,9 @@ class Display(HasTraits, object):
     def plotHistogram(self, image, plot=None):
         '''Plots a histogram.
 
-        image -- Image object
-        plot  -- plot instance to be updated 
-                 if None, a plot instance will be created
+        |  image -- Image object
+        |  plot  -- plot instance to be updated 
+        |           if None, a plot instance will be created
 
         Returns the plot instance.
         '''
@@ -194,9 +195,9 @@ class Display(HasTraits, object):
 
         Currently, the 1D cut is a plot of mean intensity vs column #.
 
-        image -- Image object
-        plot  -- plot instance to be updated 
-                 if None, a plot instance will be created
+        |  image -- Image object
+        |  plot  -- plot instance to be updated 
+        |           if None, a plot instance will be created
 
         Returns the plot instance.
         '''
@@ -220,10 +221,11 @@ class Display(HasTraits, object):
     def appendImageTools(self, plot):
         '''Attach zoom, pan, arrow key input, and colorbar to image.
 
-        Zoom Controls: 'z' = ROI selection
-                       'n' = backwards in zoom history
-                       'm' = forwards in zoom history
-                       mouse scroll = zoom in/out
+        |  Zoom Controls: 
+        |                 'z' = ROI selection
+        |                 'n' = backwards in zoom history
+        |                 'm' = forwards in zoom history
+        |                 mouse scroll = zoom in/out
 
         plot -- instance of ImagePlot to be given tools
         '''

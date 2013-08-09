@@ -102,7 +102,6 @@ class ProcessCenter(HasTraits):
 
         Warning: If there is no associated metadata file of the form
         path.metadata, then there is a message displayed.
-
             No metadata found for <filename>.
         '''
         #print 'Image Added:'
@@ -173,12 +172,9 @@ class ProcessCenter(HasTraits):
 
         strnext -- the type of traversal: either left, right, or click
 
-        Warning: The following messages may be displayed based on error 
-        checking of user input.
-
-        Warning: No images loaded.
-        Warning: Cannot traverse LEFT.
-        Warning: Cannot traverse RIGHT.
+        |  Warning: No images loaded.
+        |  Warning: Cannot traverse LEFT.
+        |  Warning: Cannot traverse RIGHT.
         '''
         #print 'Update Cache'
         #print self.cache
@@ -266,8 +262,8 @@ class ProcessCenter(HasTraits):
 
         rrchoice -- the reduced representation
 
-            Warning: RR Plot Cannot be (Re)created
-            Warning: No RR selected.
+        |  Warning: RR Plot Cannot be (Re)created
+        |  Warning: No RR selected.
         '''
         if self.datalistlength == 0:
             self.message = 'WARNING: RR Plot Cannot be (Re)created'

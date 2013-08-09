@@ -34,11 +34,11 @@ ICON = ImageResource('logo.ico', search_path=[os.path.dirname(__file__)])
 class UserInterface(HasTraits):
     '''A user interface that handles interactions with the images/data.
     
-    control -- JobControl object that handles the internal functionality
-    cpanel -- contains tools to interact with the data,shown in upper right
-    mdpanel -- contains the metadata for the image, shown in lower left
-    imagepanel -- contains all of the image related plots, shown on left
-    rrpanel -- contains the RR plots that have been generated, shown on right
+    |  control -- JobControl object that handles the internal functionality
+    |  cpanel -- contains tools to interact with the data, shown in upper right
+    |  mdpanel -- contains the metadata for the image, shown in lower left
+    |  imagepanel -- contains all of the image related plots, shown on left
+    |  rrpanel -- contains the RR plots that have been created, shown on right
     '''
 
     def __init__(self, **kwargs):
