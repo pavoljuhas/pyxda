@@ -1,0 +1,7 @@
+pyXDA
+ 
+distribute>=0.6.24
+traits>=4.3.0
+traitsui>=4.3.0
+pyface>=4.3.0
+numpy>=1.6.1

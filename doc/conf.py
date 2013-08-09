@@ -247,6 +247,7 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
+# For ReadtheDocs building
 class Mock(object):
     def __init__(self, *args, **kwargs):
         pass
@@ -265,6 +266,6 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['enable', 'traits', 'traitsui', 'chaco', 'pyface']
+MOCK_MODULES = ['enable.api', 'chaco.api']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
