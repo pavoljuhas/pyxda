@@ -20,18 +20,18 @@ import os
 def main():
     '''
     args = sys.argv
-    if len(args) == 2 and args[1] == '--rawviewer':
-        os.system("python rawviewer/controlpanel.py")    
+    if len(args) == 2 and args[1] == '--srxes':
+        os.system("python srxes/controlpanel.py")    
     else:
     '''
     print ' ___________________________________________________'    
     print '|                                                   |'
     print '|                                                   |'
-    print '|  pyXDA v1.0                                       |'
+    print '|  pyXDA v0.3                                       |'
     print '|___________________________________________________|'
     print '|                                                   |'
     print '|  Command:                                         |'
-    print '|  rawviewer                 opens Raw Viewer       |'
+    print '|  srxes                 opens SrXes                |'
     print '|                                                   |'
     print '|                                                   |'
     print '|___________________________________________________|'    

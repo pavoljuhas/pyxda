@@ -1,6 +1,5 @@
-=========================================
-pyXDA: X-ray Data Analysis 
-=========================================
+Introduction
+========================================================================
 
 SrXes provides a simple and interactive way to visualize and interact with 
 X-ray Diffraction data. SrXes provides an intuitive user interface to load
@@ -10,17 +9,20 @@ be any piece of information about the image, eg. the mean intensity.
 This allows for absolute control by the user and fast quality assessment
 of large data sets.
 
+.. index:: license
 
-Prerequisites
--------------
+License Notice
+------------------------------------------------------------------------
 
-You must have the following libraries installed before building or installing
-pyXDA:
+.. include:: ../LICENSE.txt
 
-* distribute
-* Traits
-* Traits UI
-* NumPy
-* Chaco
-* PyFace
 
+.. index:: authors
+
+Authors
+------------------------------------------------------------------------
+
+This code was written by:
+
+Michael Saltzman and
+Mark Lange
