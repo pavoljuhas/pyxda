@@ -5,3 +5,4 @@ traits>=4.3.0
 traitsui>=4.3.0
 pyface>=4.3.0
 numpy>=1.6.1
+chaco>=4.3.0
