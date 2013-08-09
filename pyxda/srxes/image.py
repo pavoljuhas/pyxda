@@ -15,7 +15,6 @@
 ##############################################################################
 
 import numpy as np
-import fabio
 import os
 from traits.api import HasTraits, Instance, Int
 from collections import deque
@@ -66,6 +65,7 @@ class Image(object):
 
     def load(self):
         '''Loads data from the .tif file and stores it in a numpy array.'''
+        import fabio
         if self.data is None and self.n != -1:
             fo = fabio.open(self.path)
             self.data = fo.data
