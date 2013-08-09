@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>User Tutorial &mdash; PyXDA 0.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyXDA 0.3 documentation" href="index.html" />
+    <link rel="next" title="Source Code Documentation" href="develop.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="develop.html" title="Source Code Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyXDA 0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="user-tutorial">
+<h1>User Tutorial<a class="headerlink" href="#user-tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="quick-start-after-installation-is-complete">
+<h2>Quick Start (After Installation is Complete)<a class="headerlink" href="#quick-start-after-installation-is-complete" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Type &#8216;srxes&#8217; in the command line. A new window should open.</li>
+</ol>
+<p>2) In the upper right, click the &#8216;...&#8217; button and choose a directory. SrXes
+will search the directory for .tif images only. If the directory is not valid
+or does not contain .tif images, an error message will be displayed.
+3) Generate some reduced representation plots with the tools in the upper
+right.
+4) Interact with the images.</p>
+<div class="highlight-python"><pre>Zoom: mouse scroll,
+Pan: click and drag,
+ROI: 'z' and then select region</pre>
+</div>
+<ol class="arabic simple" start="5">
+<li>More detailed interactions below.</li>
+</ol>
+</div>
+<div class="section" id="detailed-instructions">
+<h2>Detailed Instructions<a class="headerlink" href="#detailed-instructions" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/srxes_screenshot.png" src="_images/srxes_screenshot.png" />
+<p>This is a screenshot of the SrXes application in use. Each part of the
+application has been labeled with a number for convenience purposes. Here are
+detailed descriptions of each component.</p>
+<div class="section" id="d-image">
+<h3>(1) 2D Image<a class="headerlink" href="#d-image" title="Permalink to this headline">¶</a></h3>
+<p>This displays the diffraction image from the .tif file. It is equipped with
+pan, zoom, and ROI capabilites.</p>
+<div class="highlight-python"><pre>Pan:            click and drag
+Zoom:
+                zoom in                 +, mouse scroll up
+                zoom out                -, mouse scroll down
+
+                ROI                     z, then select
+                                        a region with mouse
+
+                prev state(*)           n
+                next state(*)           m
+
+                reset zoom              Esc
+
+                x zoom in               shift + right
+                x zoom out              shift + left
+                y zoom in               shift + up
+                y zoom out              shift + down
+
+Mask:           Ctrl + Click + Drag on colorbar/histogram
+
+        * The zoom tool supports a history of all zoom states that
+          have been used.</pre>
+</div>
+<p>(In the screenshot, the image has been masked by a range selection in the
+histogram.)</p>
+</div>
+<div class="section" id="histogram">
+<h3>(2) Histogram<a class="headerlink" href="#histogram" title="Permalink to this headline">¶</a></h3>
+<p>This displays a histogram of intensities across the diffraction image. It is
+equipped with zoom and pan capabilities. (the controls are the same as for the
+image)</p>
+</div>
+<div class="section" id="d-cut">
+<h3>(3) 1D Cut<a class="headerlink" href="#d-cut" title="Permalink to this headline">¶</a></h3>
+<p>This displays a plot of some piece of information about the image.
+Currently, this is a plot of mean intensity per column vs column number.</p>
+</div>
+<div class="section" id="metadata">
+<h3>(4) Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h3>
+<p>This displays the metadata for the image. If no .metadata file is present
+for the image, this region is left blank.</p>
+</div>
+<div class="section" id="control-panel">
+<h3>(5) Control Panel<a class="headerlink" href="#control-panel" title="Permalink to this headline">¶</a></h3>
+<p>This contains tools to interact with the data set. The first line is the
+current directory. Once a directory has been chosen (click the &#8216;...&#8217;), the
+data will automatically load into the viewer. The directory editor will
+remember up to 5 of the last directories opened. Additionally, SrXes will
+open up the last used directory on startup automatically.</p>
+<p>Below that are arrow keys to switch between images. Images can also be switchedwith the keyboard arrow keys (however, the image must be the focus to have thisfunctionality). There is also an option to choose a new colormap (sometimes
+the colormap will not update automatically. To fix this, interact with the
+plot to update it.)</p>
+<p>Below that are the choices of reduced representations. Currently the following
+reduced representations are supported:</p>
+<div class="highlight-python"><pre>Total Intensity
+Mean Intensity
+Standard Deviation
+% Pixels Below Threshold   (the last two must have a range selected
+% Pixels Above Threshold    to work)</pre>
+</div>
+<p>Error messages and other information will be displayed at the bottom of the
+panel.</p>
+</div>
+<div class="section" id="reduced-representation-plots">
+<h3>(6) Reduced Representation Plots<a class="headerlink" href="#reduced-representation-plots" title="Permalink to this headline">¶</a></h3>
+<p>Generated RR plots will be displayed here. Up to 3 can be generated at one
+time. If another plot is created, the first plot will be removed and the
+new plot will be added. If a plot is removed, it will remain saved and can
+be displayed again if needed)</p>
+<p>Within an RR plot, the user can hover over an individual point and its
+filename will appear in the control panel. The user can also select any number
+of points and the last selected plot will be displayed on the left.</p>
+<p>These plots are equipped with Zoom and Pan functionalities as well. The
+controls are the same as for the image</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">User Tutorial</a><ul>
+<li><a class="reference internal" href="#quick-start-after-installation-is-complete">Quick Start (After Installation is Complete)</a></li>
+<li><a class="reference internal" href="#detailed-instructions">Detailed Instructions</a><ul>
+<li><a class="reference internal" href="#d-image">(1) 2D Image</a></li>
+<li><a class="reference internal" href="#histogram">(2) Histogram</a></li>
+<li><a class="reference internal" href="#d-cut">(3) 1D Cut</a></li>
+<li><a class="reference internal" href="#metadata">(4) Metadata</a></li>
+<li><a class="reference internal" href="#control-panel">(5) Control Panel</a></li>
+<li><a class="reference internal" href="#reduced-representation-plots">(6) Reduced Representation Plots</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="develop.html"
+                        title="next chapter">Source Code Documentation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="develop.html" title="Source Code Documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">PyXDA 0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Michael Saltzman, Mark Lange.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

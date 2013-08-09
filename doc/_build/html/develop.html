@@ -1,0 +1,528 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Source Code Documentation &mdash; PyXDA 0.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyXDA 0.3 documentation" href="index.html" />
+    <link rel="prev" title="User Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="User Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyXDA 0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="source-code-documentation">
+<h1>Source Code Documentation<a class="headerlink" href="#source-code-documentation" title="Permalink to this headline">¶</a></h1>
+<p>The casual user need not read over this section. It is intended for anyone
+who would like to develop SrXes further or is curious about how the program
+works.</p>
+<div class="section" id="module-userinterface">
+<span id="userinterface-py"></span><h2>userinterface.py<a class="headerlink" href="#module-userinterface" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="userinterface.UserInterface">
+<em class="property">class </em><tt class="descclassname">userinterface.</tt><tt class="descname">UserInterface</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#userinterface.UserInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>A user interface that handles interactions with the images/data.</p>
+<div class="line-block">
+<div class="line">control &#8211; JobControl object that handles the internal functionality</div>
+<div class="line">cpanel &#8211; contains tools to interact with the data, shown in upper right</div>
+<div class="line">mdpanel &#8211; contains the metadata for the image, shown in lower left</div>
+<div class="line">imagepanel &#8211; contains all of the image related plots, shown on left</div>
+<div class="line">rrpanel &#8211; contains the RR plots that have been created, shown on right</div>
+</div>
+<dl class="method">
+<dt id="userinterface.UserInterface.createImagePanel">
+<tt class="descname">createImagePanel</tt><big>(</big><big>)</big><a class="headerlink" href="#userinterface.UserInterface.createImagePanel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the image panel and fills it with the associated plots. 
+The plots included are the image plot, histogram, and 1D plot. Data
+can be set for these plots without changing the Plot objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="userinterface.UserInterface.updateRRPanel">
+<tt class="descname">updateRRPanel</tt><big>(</big><em>choice</em><big>)</big><a class="headerlink" href="#userinterface.UserInterface.updateRRPanel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills the rrpanel with new RR plots.</p>
+<p>choice &#8211; the name of the RR to check for</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-controlpanel">
+<span id="controlpanel-py"></span><h2>controlpanel.py<a class="headerlink" href="#module-controlpanel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="controlpanel.ControlPanel">
+<em class="property">class </em><tt class="descclassname">controlpanel.</tt><tt class="descname">ControlPanel</tt><a class="headerlink" href="#controlpanel.ControlPanel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains tools to interact with the data set.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="controlpanel.MetadataPanel">
+<em class="property">class </em><tt class="descclassname">controlpanel.</tt><tt class="descname">MetadataPanel</tt><a class="headerlink" href="#controlpanel.MetadataPanel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains metadata about the currently viewed image.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-processcenter">
+<span id="processcenter-py"></span><h2>processcenter.py<a class="headerlink" href="#module-processcenter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="processcenter.ProcessCenter">
+<em class="property">class </em><tt class="descclassname">processcenter.</tt><tt class="descname">ProcessCenter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegates tasks to the appropriate resources and stores data.</p>
+<p>Manages GUI events and decides who should handle them. Also, serves as the
+central data structure to store all of the information related to the 
+current data set.</p>
+<dl class="method">
+<dt id="processcenter.ProcessCenter.addNewImage">
+<tt class="descname">addNewImage</tt><big>(</big><em>path</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.addNewImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new image to the list of data in the directory.</p>
+<p>path &#8211; the filepath of the image</p>
+<p>Warning: If there is no associated metadata file of the form
+path.metadata, then there is a message displayed.</p>
+<blockquote>
+<div>No metadata found for &lt;filename&gt;.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.changeIndex">
+<tt class="descname">changeIndex</tt><big>(</big><em>newndx</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.changeIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines how the new image selection should be processed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.countHighPixels">
+<tt class="descname">countHighPixels</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.countHighPixels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the percentage of pixels above the selected threshold.</p>
+<p>image &#8211; Image object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.countLowPixels">
+<tt class="descname">countLowPixels</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.countLowPixels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the percentage of pixels below the selected threshold.</p>
+<p>image &#8211; Image object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.createRRPlot">
+<tt class="descname">createRRPlot</tt><big>(</big><em>rrchoice</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.createRRPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a new plot based on the RR given and the current data.</p>
+<p>rrchoice &#8211; the reduced representation</p>
+<div class="line-block">
+<div class="line">Warning: RR Plot Cannot be (Re)created</div>
+<div class="line">Warning: No RR selected.</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.initCache">
+<tt class="descname">initCache</tt><big>(</big><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.initCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the cache by placing the first 2 images in the cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.initData">
+<tt class="descname">initData</tt><big>(</big><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.initData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes all values before a data set is chosen.</p>
+<p>This method is used both at start and when switching directories in 
+order to reset the display and internal mechanisms.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.initDisplay">
+<tt class="descname">initDisplay</tt><big>(</big><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.initDisplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots are initialized as None.</p>
+<p>This allows for consistency with the plot methods of the Display
+class. They will be created when these methods are called the first
+time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.plotData">
+<tt class="descname">plotData</tt><big>(</big><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.plotData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the plots to display data related to the current image.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.processJob">
+<tt class="descname">processJob</tt><big>(</big><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.processJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translates a job into the appropriate method calls.</p>
+<dl class="docutils">
+<dt>A job must be in the following form:</dt>
+<dd>[&#8216;task&#8217;, [kwargs]]</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.startLoad">
+<tt class="descname">startLoad</tt><big>(</big><em>dirpath</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.startLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a load thread to process the current directory.</p>
+<p>If a directory has already been chosen, the display will be reset
+first.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.startProcessJob">
+<tt class="descname">startProcessJob</tt><big>(</big><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.startProcessJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts a thread to process tasks in the jobqueue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="processcenter.ProcessCenter.updateCache">
+<tt class="descname">updateCache</tt><big>(</big><em>strnext</em><big>)</big><a class="headerlink" href="#processcenter.ProcessCenter.updateCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the image cache based on the current image.</p>
+<p>strnext &#8211; the type of traversal: either left, right, or click</p>
+<div class="line-block">
+<div class="line">Warning: No images loaded.</div>
+<div class="line">Warning: Cannot traverse LEFT.</div>
+<div class="line">Warning: Cannot traverse RIGHT.</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-display">
+<span id="display-py"></span><h2>display.py<a class="headerlink" href="#module-display" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="display.Display">
+<em class="property">class </em><tt class="descclassname">display.</tt><tt class="descname">Display</tt><big>(</big><em>queue</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#display.Display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles creation/modification of the plots in the GUI.</p>
+<div class="line-block">
+<div class="line">jobqueue &#8211; the event queue</div>
+<div class="line">filenum &#8211; the index of the new file to be plotted (based on </div>
+<div class="line-block">
+<div class="line">RR selection)</div>
+</div>
+<div class="line">cmap &#8211; colormap for the imageplot</div>
+<div class="line">_selection &#8211; the range of the highlighted region drawn on the histogram</div>
+</div>
+<dl class="method">
+<dt id="display.Display.append1DCutTools">
+<tt class="descname">append1DCutTools</tt><big>(</big><em>plot</em><big>)</big><a class="headerlink" href="#display.Display.append1DCutTools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attaches zoom and pan tools to the plot.</p>
+<p>Zoom has same controls as the imageplot.</p>
+<p>plot &#8211; instance of Plot to be given tools</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.appendHistogramTools">
+<tt class="descname">appendHistogramTools</tt><big>(</big><em>plot</em><big>)</big><a class="headerlink" href="#display.Display.appendHistogramTools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attach zoom, pan, and rangeselect to plot.</p>
+<p>If a range is selected, this range of values will be highlighted in the
+image above.</p>
+<p>plot &#8211; instance of Plot to be given tools</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.appendImageTools">
+<tt class="descname">appendImageTools</tt><big>(</big><em>plot</em><big>)</big><a class="headerlink" href="#display.Display.appendImageTools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attach zoom, pan, arrow key input, and colorbar to image.</p>
+<div class="line-block">
+<div class="line">Zoom Controls: </div>
+<div class="line-block">
+<div class="line">&#8216;z&#8217; = ROI selection</div>
+<div class="line">&#8216;n&#8217; = backwards in zoom history</div>
+<div class="line">&#8216;m&#8217; = forwards in zoom history</div>
+<div class="line">mouse scroll = zoom in/out</div>
+</div>
+</div>
+<p>plot &#8211; instance of ImagePlot to be given tools</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.appendRRTools">
+<tt class="descname">appendRRTools</tt><big>(</big><em>plot</em><big>)</big><a class="headerlink" href="#display.Display.appendRRTools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attach zoom, pan, and ScatterInspector to plot.</p>
+<p>Individual points can be selected. The last selected point will be 
+plotted. Hovering over a point will display the filename it refers to.</p>
+<p>plot &#8211; instance of Plot to be given tools</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.plot1DCut">
+<tt class="descname">plot1DCut</tt><big>(</big><em>image</em>, <em>plot=None</em><big>)</big><a class="headerlink" href="#display.Display.plot1DCut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a 1D cut of the image.</p>
+<p>Currently, the 1D cut is a plot of mean intensity vs column #.</p>
+<div class="line-block">
+<div class="line">image &#8211; Image object</div>
+<div class="line">plot  &#8211; plot instance to be updated </div>
+<div class="line-block">
+<div class="line">if None, a plot instance will be created</div>
+</div>
+</div>
+<p>Returns the plot instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.plotHistogram">
+<tt class="descname">plotHistogram</tt><big>(</big><em>image</em>, <em>plot=None</em><big>)</big><a class="headerlink" href="#display.Display.plotHistogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a histogram.</p>
+<div class="line-block">
+<div class="line">image &#8211; Image object</div>
+<div class="line">plot  &#8211; plot instance to be updated </div>
+<div class="line-block">
+<div class="line">if None, a plot instance will be created</div>
+</div>
+</div>
+<p>Returns the plot instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.plotImage">
+<tt class="descname">plotImage</tt><big>(</big><em>image</em>, <em>plot=None</em><big>)</big><a class="headerlink" href="#display.Display.plotImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a tiff image.</p>
+<div class="line-block">
+<div class="line">image &#8211; Image object</div>
+<div class="line">plot  &#8211; plot instance to be updated </div>
+<div class="line-block">
+<div class="line">if None, a plot instance will be created</div>
+</div>
+</div>
+<p>Returns the plot instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.plotRRMap">
+<tt class="descname">plotRRMap</tt><big>(</big><em>ydata</em>, <em>title</em>, <em>plot=None</em><big>)</big><a class="headerlink" href="#display.Display.plotRRMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots an RR map.</p>
+<div class="line-block">
+<div class="line">ydata &#8211; y-data to be plotted</div>
+<div class="line">title &#8211; RR type, to be displayed on y-axis</div>
+<div class="line">plot  &#8211; plot instance to be updated </div>
+<div class="line-block">
+<div class="line">if None, a plot instance will be created</div>
+</div>
+</div>
+<p>Returns the plot instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.setData">
+<tt class="descname">setData</tt><big>(</big><em>ydata</em>, <em>xdata</em>, <em>plot</em><big>)</big><a class="headerlink" href="#display.Display.setData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method for setting data in 1D plots.</p>
+<p>If xdata is None, then the x values are set to the indices of ydata.</p>
+<div class="line-block">
+<div class="line">ydata &#8211; numpy array of y values</div>
+<div class="line">xdata &#8211; numpy array of x values</div>
+<div class="line">plot &#8211; plot instance to be updated</div>
+</div>
+<p>Returns the plot instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="display.Display.updateColorMap">
+<tt class="descname">updateColorMap</tt><big>(</big><em>cmap</em><big>)</big><a class="headerlink" href="#display.Display.updateColorMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the colormap for the image plot.</p>
+<p>cmap &#8211; the new color scheme</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="display.KBInputTool">
+<em class="property">class </em><tt class="descclassname">display.</tt><tt class="descname">KBInputTool</tt><big>(</big><em>component=None</em>, <em>**kwtraits</em><big>)</big><a class="headerlink" href="#display.KBInputTool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tool that enables files to be switched with the arrow keys.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-image">
+<span id="image-py"></span><h2>image.py<a class="headerlink" href="#module-image" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="image.Image">
+<em class="property">class </em><tt class="descclassname">image.</tt><tt class="descname">Image</tt><big>(</big><em>n</em>, <em>path</em><big>)</big><a class="headerlink" href="#image.Image" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object that contains relevant information about a .tif image.</p>
+<p>Each image has a name, filepath, n (index), data, and metadata.
+Dummy images can be created as placeholders. They only have a name
+(2D Image), blank metadata, n (-1), and data. They are instantiated if
+the initialized path is an empty string.</p>
+<dl class="method">
+<dt id="image.Image.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#image.Image.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from the .tif file and stores it in a numpy array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="image.Image.parseMD">
+<tt class="descname">parseMD</tt><big>(</big><big>)</big><a class="headerlink" href="#image.Image.parseMD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the associated .metadata file and parses the information.</p>
+<p>If no such file exists, the metadata is left empty.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="image.ImageCache">
+<em class="property">class </em><tt class="descclassname">image.</tt><tt class="descname">ImageCache</tt><a class="headerlink" href="#image.ImageCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>An image cache that contains at most 3 Image objects.</p>
+<p>The cache ensures that 3 images are loaded into memory at a given time.
+These include the current, next, and previous images. This allows 
+faster plotting of images. The cache is a deque of size 3 with modified
+pop/append methods.</p>
+<dl class="method">
+<dt id="image.ImageCache.append">
+<tt class="descname">append</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#image.ImageCache.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends the new image and deloads the image that is removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="image.ImageCache.appendleft">
+<tt class="descname">appendleft</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#image.ImageCache.appendleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends left the new image and deloads the image that is removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="image.ImageCache.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#image.ImageCache.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deloads the current images, and replaces them with dummy Images.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="image.ImageCache.pop">
+<tt class="descname">pop</tt><big>(</big><big>)</big><a class="headerlink" href="#image.ImageCache.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pops an Image from the right and places a dummy image on left.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="image.ImageCache.popleft">
+<tt class="descname">popleft</tt><big>(</big><big>)</big><a class="headerlink" href="#image.ImageCache.popleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pops an Image from the left and places a dummy image on right.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="image.ImageCache.reverse">
+<tt class="descname">reverse</tt><big>(</big><big>)</big><a class="headerlink" href="#image.ImageCache.reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverses the cache.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-loadthread">
+<span id="loadthread-py"></span><h2>loadthread.py<a class="headerlink" href="#module-loadthread" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="loadthread.LoadThread">
+<em class="property">class </em><tt class="descclassname">loadthread.</tt><tt class="descname">LoadThread</tt><big>(</big><em>queue</em>, <em>dirpath</em><big>)</big><a class="headerlink" href="#loadthread.LoadThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>A separate thread that searches the given directory for .tif images.
+For each image, it sends a request to the ProcessCenter to store the
+image. A thread is created and run each time a directory is chosen.</p>
+<p>NOTE: Images are not loaded into memory but their paths are stored so 
+loading can be performed at a later time.</p>
+<dl class="method">
+<dt id="loadthread.LoadThread.initLive">
+<tt class="descname">initLive</tt><big>(</big><big>)</big><a class="headerlink" href="#loadthread.LoadThread.initLive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of valid .tif files in the directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="loadthread.LoadThread.livemode">
+<tt class="descname">livemode</tt><big>(</big><big>)</big><a class="headerlink" href="#loadthread.LoadThread.livemode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends image requests to the ProcessCenter for each image.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Source Code Documentation</a><ul>
+<li><a class="reference internal" href="#module-userinterface">userinterface.py</a></li>
+<li><a class="reference internal" href="#module-controlpanel">controlpanel.py</a></li>
+<li><a class="reference internal" href="#module-processcenter">processcenter.py</a></li>
+<li><a class="reference internal" href="#module-display">display.py</a></li>
+<li><a class="reference internal" href="#module-image">image.py</a></li>
+<li><a class="reference internal" href="#module-loadthread">loadthread.py</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">User Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/develop.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="User Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">PyXDA 0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Michael Saltzman, Mark Lange.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
