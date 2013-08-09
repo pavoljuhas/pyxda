@@ -7,30 +7,30 @@ works.
 
 userinterface.py
 ------------------------------------------------------------------------
-.. automodule:: userinterface
+.. automodule:: pyxda.srxes.userinterface
    :members:
 
 controlpanel.py
 ------------------------------------------------------------------------
-.. automodule:: controlpanel
+.. automodule:: pyxda.srxes.controlpanel
    :members:
 
 processcenter.py
 ------------------------------------------------------------------------
-.. automodule:: processcenter
+.. automodule:: pyxda.srxes.processcenter
    :members:
 
 display.py
 ------------------------------------------------------------------------
-.. automodule:: display
+.. automodule:: pyxda.srxes.display
    :members:
  
 image.py
 ------------------------------------------------------------------------
-.. automodule:: image
+.. automodule:: pyxda.srxes.image
    :members:
 
 loadthread.py
 ------------------------------------------------------------------------
-.. automodule:: loadthread
+.. automodule:: pyxda.srxes.loadthread
    :members:
