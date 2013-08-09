@@ -1,0 +1,8 @@
+pyXDA
+
+distribute>=0.6.24
+chaco>=4.3.0
+traits>=4.3.0
+traitsui>=4.3.0
+numpy>=1.7.1
+pyface>=4.3.0
