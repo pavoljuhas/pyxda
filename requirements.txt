@@ -1,7 +1,7 @@
 pyXDA
 
 distribute>=0.6.24
-enable==4.2.1
+enable>=4.3.0
 traits>=4.3.0
 traitsui>=4.3.0
 pyface>=4.3.0
