@@ -15,7 +15,7 @@ Prerequisites
 -------------
 
 You must have the following libraries installed before building or installing
-Chaco:
+pyXDA:
 
 * distribute
 * Traits
