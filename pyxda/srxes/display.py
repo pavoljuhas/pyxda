@@ -32,10 +32,10 @@ class KBInputTool(BaseTool):
 
     def normal_key_pressed(self, event):
         if self.left_key.match(event):
-            print 'Left Arrow'
+            #print 'Left Arrow'
             self.arrow_cb(self, -1)
         elif self.right_key.match(event):
-            print 'Right Arrow'
+            #print 'Right Arrow'
             self.arrow_cb(self, 1)
 
 class Display(HasTraits, object):
@@ -43,7 +43,7 @@ class Display(HasTraits, object):
     
     jobqueue -- the event queue
     filenum -- the index of the new file to be plotted (based on RR selection)
-    _cmap -- colormap for the imageplot
+    cmap -- colormap for the imageplot
     _selection -- the range of the highlighted region drawn on the histogram
     '''
 
@@ -51,7 +51,7 @@ class Display(HasTraits, object):
         super(Display, self).__init__()
         self.jobqueue = queue
         self.add_trait('filenum', Int())
-        self._cmap = jet
+        self.cmap = jet
         self._selection = None
     
     def _arrow_callback(self, tool, n):
@@ -72,14 +72,14 @@ class Display(HasTraits, object):
         '''
         sel_indices = self.index_datasource.metadata.get('selections', [])
         hover_indices = self.index_datasource.metadata.get('hover', [])
-        print "Selection indices:", sel_indices
-        print "Hover indices:", hover_indices
+        #print "Selection indices:", sel_indices
+        #print "Hover indices:", hover_indices
         if sel_indices:
             self.jobqueue.put(['changendx', [sel_indices[-1]]])
-            print sel_indices[-1]
+            #print sel_indices[-1]
         if hover_indices:
             self.filenum = hover_indices[0]
-            print 'self.filenum', self.filenum
+            #print 'self.filenum', self.filenum
         else:
             self.filenum = -1
         return
@@ -103,10 +103,10 @@ class Display(HasTraits, object):
             plot.y_axis.visible = False
             self.imageplot = plot
 
-            imgPlot = plot.img_plot("imagedata", colormap=self._cmap, 
+            imgPlot = plot.img_plot("imagedata", colormap=self.cmap, 
                                                     name='image')[0]
             self.imgPlot = imgPlot
-            self._appendImageTools(imgPlot)
+            self.appendImageTools(imgPlot)
         else:
             plot.data.set_data('imagedata', image.data)
         plot.aspect_ratio = float(image.data.shape[1]) / image.data.shape[0]
@@ -126,7 +126,7 @@ class Display(HasTraits, object):
         if plot == None:
             pd = ArrayPlotData()
             plot = Plot(pd, padding=(79, 5, 0, 0))
-            self._setData(ydata, None, plot)
+            self.setData(ydata, None, plot)
             plot.plot(('x', 'y'), name='rrplot', type="scatter", color='green',
                       marker="circle", marker_size=6)
             plot.value_axis.title = title
@@ -136,16 +136,16 @@ class Display(HasTraits, object):
             plot.y_axis.tick_label_formatter = lambda val:('%.2E'%val)
             plot.x_axis.visible = False
             hgrid, vgrid = add_default_grids(plot)
-            self._appendRRTools(plot)
+            self.appendRRTools(plot)
         else:
-            self._setData(ydata, None, plot)
+            self.setData(ydata, None, plot)
         plot.invalidate_draw()
         return plot
 
-    def _setData(self, ydata, xdata, plot):
+    def setData(self, ydata, xdata, plot):
         '''Convenience method for setting data in 1D plots.
 
-        If xdata is None, then the x values are set to the indices of the ydata.
+        If xdata is None, then the x values are set to the indices of ydata.
 
         ydata -- numpy array of y values
         xdata -- numpy array of x values
@@ -179,13 +179,13 @@ class Display(HasTraits, object):
             add_default_grids(plot)
             plot.value_range.low = 0
             plot.value_axis.title = "Histogram"
-            self._appendHistogramTools(plot)
+            self.appendHistogramTools(plot)
             
         else:
             data = np.histogram(image.data, bins=10000)
             index = np.delete(data[1], data[1].size-1)
             values = data[0]
-            self._setData(values, index, plot)
+            self.setData(values, index, plot)
         plot.invalidate_draw()
         return plot
 
@@ -209,15 +209,15 @@ class Display(HasTraits, object):
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
             plot.value_range.low = 0
-            self._append1DCutTools(plot)
+            self.append1DCutTools(plot)
         else:
             index = range(image.data.shape[1])
             values = image.data.mean(axis=0)
-            self._setData(values, index, plot)
+            self.setData(values, index, plot)
         plot.invalidate_draw()
         return plot
 
-    def _appendImageTools(self, plot):
+    def appendImageTools(self, plot):
         '''Attach zoom, pan, arrow key input, and colorbar to image.
 
         Zoom Controls: 'z' = ROI selection
@@ -261,7 +261,8 @@ class Display(HasTraits, object):
         self.colorbar = colorbar
         return
     
-    def _appendHistogramTools(self, plot):
+    # FIXME: The Pan Tool does not work.
+    def appendHistogramTools(self, plot):
         '''Attach zoom, pan, and rangeselect to plot.
 
         If a range is selected, this range of values will be highlighted in the
@@ -297,7 +298,8 @@ class Display(HasTraits, object):
         self.range_selection.listeners.append(self.imgPlot)
         return
 
-    def _appendRRTools(self, plot):
+    # FIXME: Hover/Click selections only work for the last RR plot created.
+    def appendRRTools(self, plot):
         '''Attach zoom, pan, and ScatterInspector to plot.
 
         Individual points can be selected. The last selected point will be 
@@ -326,7 +328,7 @@ class Display(HasTraits, object):
         plot.tools.append(PanTool(plot))
         return
 
-    def _append1DCutTools(self, plot):
+    def append1DCutTools(self, plot):
         '''Attaches zoom and pan tools to the plot.
         
         Zoom has same controls as the imageplot.
@@ -347,13 +349,16 @@ class Display(HasTraits, object):
         plot.zoom = zoom
         return
 
+    # FIXME: The color map does not always update immediately. Sometimes you
+    #        have to interact with the plot before it will apply the cmap.
     def updateColorMap(self, cmap):
         ''' Changes the colormap for the image plot.
 
         cmap -- the new color scheme
         '''
-        self._cmap = cmap
+        self.cmap = cmap
         crange = self.imageplot.color_mapper.range
-        cmapper = default_colormaps.color_map_name_dict[self._cmap](crange)
+        cmapper = default_colormaps.color_map_name_dict[self.cmap](crange)
         self.imageplot.color_mapper = cmapper
+        self.imageplot.invalidate_draw()
         return

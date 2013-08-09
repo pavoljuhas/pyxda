@@ -35,8 +35,8 @@ class ControlPanel(HasTraits):
     spacer2 = Str('  ')
     colormap = Enum(default_colormaps.color_map_name_dict.keys())
     rrchoice = Enum('Choose a Reduced Representation', 'Total Intensity',
-                'Mean', 'Standard Deviation', 'Percentage of Dead Pixels',
-                'Percentage of Saturated Pixels')
+                'Mean', 'Standard Deviation', '% Pixels Below Threshold',
+                '% Pixels Above Threshold')
     message = Str('')
 
     def _colormap_default(self): return 'jet'
@@ -71,7 +71,6 @@ class ControlPanel(HasTraits):
     
     view = View(group, id='pyxda.srxes.cpanel')
 
-# TODO: Organize the metadata.
 class MetadataPanel(HasTraits):
     '''Contains metadata about the currently viewed image.'''
     

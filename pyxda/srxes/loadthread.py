@@ -20,7 +20,7 @@ import threading
 import glob
 
 # TODO: Enable Live Mode
-class LoadImage(HasTraits, threading.Thread):
+class LoadThread(HasTraits, threading.Thread):
     '''A separate thread that searches the given directory for .tif images.
     For each image, it sends a request to the ProcessCenter to store the
     image. A thread is created and run each time a directory is chosen.
@@ -30,7 +30,7 @@ class LoadImage(HasTraits, threading.Thread):
     '''
     def __init__(self, queue, dirpath):
         threading.Thread.__init__(self)
-        super(LoadImage, self).__init__() 
+        super(LoadThread, self).__init__() 
 
         self.dirpath = dirpath
         self.filelist = []
@@ -40,10 +40,10 @@ class LoadImage(HasTraits, threading.Thread):
         self.daemon = True
 
     def run(self):
-        print 'Live mode start'
+        #print 'Live mode start'
         self.initLive()
         self.livemode()
-        print 'Live mode stop'
+        #print 'Live mode stop'
         return
 
     def initLive(self):
@@ -65,7 +65,7 @@ class LoadImage(HasTraits, threading.Thread):
         '''Sends image requests to the ProcessCenter for each image.'''
         for i in range(len(self.filelist)):
             self.jobqueue.put(['newimage', {'path':self.filelist[i]}])
-            print self.filelist[i]
+            #print self.filelist[i]
             #print 'Image Process Sent'
             if i == 2:
                 self.jobqueue.put(['initcache'])

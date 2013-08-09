@@ -15,26 +15,27 @@
 ##############################################################################
 
 import chaco.api
-from enthought.traits.api import HasTraits, Instance, \
-                                Dict, Event, Int, List, Bool, String, Str
-from chaco.api import ArrayPlotData, Plot, jet
 import traitsui.api
 import enable.api
 import numpy as np
-import scipy as sp
-import fabio
 import Queue
 import threading
-import time
 import os
+
+from traits.api import HasTraits, Instance, Int, List, Bool, Str
 
 from display import Display
 from controlpanel import ControlPanel, MetadataPanel
 from image import Image, ImageCache
-from loadimages import LoadImage
+from loadthread import LoadThread
 
 class ProcessCenter(HasTraits):
-    
+    '''Delegates tasks to the appropriate resources and stores data.
+
+    Manages GUI events and decides who should handle them. Also, serves as the
+    central data structure to store all of the information related to the 
+    current data set.
+    '''
     ##############################################
     # Initialize
     ##############################################
@@ -45,48 +46,66 @@ class ProcessCenter(HasTraits):
         self.processing_job.daemon = True
         
         self.jobqueue = Queue.Queue()
+        self.add_trait('display', Display(self.jobqueue))
         self.add_trait('datalist', List())
-        self.add_trait('datalistlength', Int(0))
+        self.add_trait('datalistlength', Int())
         self.add_trait('message', Str(''))
-        
+        self.add_trait('cache', Instance(ImageCache, ImageCache()))
+        self.add_trait('pic', Instance(Image))
+        self.add_trait('hasImage', Bool())
+
         self.on_trait_change(self.plotData, 'pic', dispatch='new')
-       
-        self.initLoadImage()
+        
         self.initDisplay()
-        self.initCMap()
-        return
-    
-    def initLoadImage(self):
-        self.cache = ImageCache()
-        self.add_trait('pic', Instance(Image, Image(-1, '')))
-        self.pic.data = np.zeros((2048, 2048))
-        self.add_trait('hasImage', Bool(False))
+        self.initData()
         return
 
     def initDisplay(self):
-        self.add_trait('display', Display(self.jobqueue))
-        # TODO: Move to Display.
-        self.add_trait('imageplot', Instance(Plot, 
-                                        self.display.plotImage(self.pic)))
-        self.add_trait('histogram', Instance(Plot,
-                                        self.display.plotHistogram(self.pic)))
-        self.add_trait('plot1d', Instance(Plot,
-                                        self.display.plot1DCut(self.pic)))
-        self.newndx = -1
+        '''Plots are initialized as None.
+
+        This allows for consistency with the plot methods of the Display
+        class. They will be created when these methods are called the first
+        time.
+        '''
+        self.imageplot = None
+        self.histogram = None
+        self.plot1d = None
         return
     
-    # TODO: Update
-    def initCMap(self):
+    def initData(self):
+        '''Initializes all values before a data set is chosen.
+
+        This method is used both at start and when switching directories in 
+        order to reset the display and internal mechanisms.
+        '''
+        del self.datalist[:]
+        self.datalistlength = 0
+        self.message = ''
+        self.hasImage = False
+        self.cache.clear()
+        self.newndx = -1
         self.rrplots = {}
 
+        pic = Image(-1, '')
+        pic.data = np.zeros((2048, 2048))
+        self.pic = pic
+        self.plotData()
+        return
+
     ##############################################
-    # Tasks  
+    # Jobs
     ##############################################
-    def addNewImage(self,path, **kwargs):
-        '''add new image and create jobs to process new image
-        image:    2d ndarray, new 2d image array
+    def addNewImage(self, path, **kwargs):
+        '''Adds a new image to the list of data in the directory.
+        
+        path -- the filepath of the image
+
+        Warning: If there is no associated metadata file of the form
+        path.metadata, then there is a message displayed.
+
+            No metadata found for <filename>.
         '''
-        print 'Image Added:'
+        #print 'Image Added:'
         n = len(self.datalist)
         self.datalist.append(Image(n, path))
         self.hasImage = True
@@ -98,24 +117,30 @@ class ProcessCenter(HasTraits):
         return
     
     def plotData(self):
-        print 'Plot Data'
+        '''Updates the plots to display data related to the current image.'''
+        #print 'Plot Data'
         self.pic.load()
         self.imageplot = self.display.plotImage(self.pic, self.imageplot)
-        #TODO
         self.histogram = self.display.plotHistogram(self.pic, self.histogram)
         self.plot1d = self.display.plot1DCut(self.pic, self.plot1d)
         return
 
     def startLoad(self, dirpath):
-        print 'Load Started'
+        '''Creates a load thread to process the current directory.
+
+        If a directory has already been chosen, the display will be reset
+        first.
+        '''
+        #print 'Load Started'
         if self.hasImage == True:
-            self.resetViewer()
-        self.loadimage = LoadImage(self.jobqueue, dirpath)
+            self.initData()
+        self.loadimage = LoadThread(self.jobqueue, dirpath)
         self.loadimage.start()
         return
 
     def initCache(self):
-        print 'Init Cache'
+        '''Initializes the cache by placing the first 2 images in the cache.'''
+        #print 'Init Cache'
         self.pic = self.datalist[0]
         for i in range(2):
             pic = self.datalist[i]
@@ -124,28 +149,39 @@ class ProcessCenter(HasTraits):
         return 
 
     def changeIndex(self, newndx):
-        print 'Change Index'
+        '''Determines how the new image selection should be processed.'''
+        #print 'Change Index'
         self.newndx = newndx
-
         currentpos = self.pic.n
 
         if newndx - currentpos == -1:
-            print 'Click left'
+            #print 'Click left'
             self.updateCache('left')
         elif newndx - currentpos == 1:
-            print 'Click right'
+            #print 'Click right'
             self.updateCache('right')
         elif newndx - currentpos == 0:
-            print 'Click same'
+            #print 'Click same'
             return
         elif newndx < self.datalistlength and newndx >= 0:
-            print 'Click skip'
+            #print 'Click skip'
             self.updateCache('click')
         return
 
     def updateCache(self, strnext):
-        print 'Update Cache'
-        print self.cache
+        '''Updates the image cache based on the current image.
+
+        strnext -- the type of traversal: either left, right, or click
+
+        Warning: The following messages may be displayed based on error 
+        checking of user input.
+
+        Warning: No images loaded.
+        Warning: Cannot traverse LEFT.
+        Warning: Cannot traverse RIGHT.
+        '''
+        #print 'Update Cache'
+        #print self.cache
         n = self.pic.n
         if n == -1:
             self.message = 'WARNING: No images loaded.'
@@ -153,7 +189,7 @@ class ProcessCenter(HasTraits):
             return
         if strnext == 'left':
             self.newndx = n - 1
-            print '%d -> %d' % (n, self.newndx)
+            #print '%d -> %d' % (n, self.newndx)
             if n == 0:
                 self.message = 'WARNING: Cannot traverse LEFT.'
                 print self.message
@@ -162,7 +198,7 @@ class ProcessCenter(HasTraits):
                 self._innerCache(n, -1)
         elif strnext == 'right':
             self.newndx = n + 1
-            print '%d -> %d' % (n, self.newndx)
+            #print '%d -> %d' % (n, self.newndx)
             if n == self.datalistlength - 1:
                 self.message = 'WARNING: Cannot traverse RIGHT.'
                 print self.message
@@ -172,7 +208,7 @@ class ProcessCenter(HasTraits):
                 self._innerCache(n, 1)
                 self.cache.reverse()
         elif strnext == 'click':
-            print '%d -> %d' % (n, self.newndx)
+            #print '%d -> %d' % (n, self.newndx)
             self.cache.clear()
             if self.newndx == 0:
                 self.initCache()
@@ -184,10 +220,11 @@ class ProcessCenter(HasTraits):
                     self.cache.append(self.datalist[self.newndx+1])
                 else:
                     self.cache.append(Image(-1, ''))
-        print self.cache
+        #print self.cache
         return
 
     def _innerCache(self, n, i):
+        '''Internal cache method that deals with cache logic when updating.'''
         self.pic = self.cache.popleft()
 
         self.cache.appendleft(self.pic)
@@ -199,7 +236,12 @@ class ProcessCenter(HasTraits):
             self.cache.pop()
         return
 
-    def countDeadPixels(self, image):
+    # TODO: As more RRs are supported, move them to a separate file.
+    def countLowPixels(self, image):
+        '''Finds the percentage of pixels below the selected threshold.
+
+        image -- Image object
+        '''
         selection = self.display._selection
         data = image.ravel()
         limit = selection[0]
@@ -207,7 +249,11 @@ class ProcessCenter(HasTraits):
         rv = count/float(np.size(data))
         return rv*100
 
-    def countSatPixels(self, image):
+    def countHighPixels(self, image):
+        '''Finds the percentage of pixels above the selected threshold.
+
+        image -- Image object
+        '''
         selection = self.display._selection
         data = image.ravel()
         limit = selection[1]
@@ -216,6 +262,13 @@ class ProcessCenter(HasTraits):
         return rv*100
 
     def createRRPlot(self, rrchoice):
+        '''Generates a new plot based on the RR given and the current data.
+
+        rrchoice -- the reduced representation
+
+            Warning: RR Plot Cannot be (Re)created
+            Warning: No RR selected.
+        '''
         if self.datalistlength == 0:
             self.message = 'WARNING: RR Plot Cannot be (Re)created'
             print self.message
@@ -234,17 +287,17 @@ class ProcessCenter(HasTraits):
         elif rrchoice == 'Standard Deviation':
             f = lambda x: np.std(x)
 
-        elif rrchoice == 'Percentage of Dead Pixels':
+        elif rrchoice == '% Pixels Below Threshold':
             if self.display._selection != None:
-                f = self.countDeadPixels
+                f = self.countLowPixels
             else:
                 self.message = 'A range selection must be chosen.'
                 print self.message
                 return
 
-        elif rrchoice == 'Percentage of Saturated Pixels':
+        elif rrchoice == '% Pixels Above Threshold':
             if self.display._selection != None:
-                f = self.countSatPixels
+                f = self.countHighPixels
             else:
                 self.message = 'A range selection must be chosen.'
                 print self.message
@@ -272,37 +325,20 @@ class ProcessCenter(HasTraits):
         print self.message
         return
 
-    def resetViewer(self):
-        print 'Reset'
-
-        self.rrplots = {}
-        self.hasImage = False
-        self.newndx = -1
-        self.message = ''
-        img = Image(-1, '')
-        img.data = np.zeros((2048, 2048))
-        self.pic = img
-
-        with self.jobqueue.mutex:
-            self.jobqueue.queue.clear()
-        
-        self.cache.clear()
-        del self.datalist[:]
-        self.datalistlength = 0
-        return
-
-
     ##############################################
     # Job Processing
     ##############################################
     def startProcessJob(self):
-        '''Call processImage thread and start image processing. This 
-        method should be called before the imageload thread.
-        '''
+        '''Starts a thread to process tasks in the jobqueue.'''
         self.processing_job.start()
         return
     
     def processJob(self):
+        '''Translates a job into the appropriate method calls.
+
+        A job must be in the following form:
+            ['task', [kwargs]] 
+        '''
         while True:
             # retrieve job data
             jobdata = self.jobqueue.get(block=True)
@@ -314,23 +350,18 @@ class ProcessCenter(HasTraits):
                 self.addNewImage(**kwargs)
             elif jobtype == 'updatecache':
                 self.updateCache(*kwargs)
-            elif jobtype == 'plotdata':
-                self.plotnow = kwargs
             elif jobtype == 'initcache':
                 self.initCache()
             elif jobtype == 'plotrr':
                 self.createRRPlot(*kwargs)
             elif jobtype == 'changendx':
                 self.changeIndex(*kwargs)
-            elif jobtype == 'reset':
-                self.resetViewer()
             elif jobtype == 'startload':
                 self.startLoad(*kwargs)
             elif jobtype == 'updatecmap':
                 self.display.updateColorMap(*kwargs)
             elif jobtype == 'updatemsg':
                 self.message = jobdata[1]
-            jobdata = []
             self.jobqueue.task_done()
         return
 

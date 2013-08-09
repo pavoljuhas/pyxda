@@ -28,7 +28,6 @@ class Image(object):
     (2D Image), blank metadata, n (-1), and data. They are instantiated if
     the initialized path is an empty string.
     '''
-
     def __init__(self, n, path):
         if path == '':
             self.name = '2D Image'
@@ -38,13 +37,15 @@ class Image(object):
             return
         self.name = os.path.split(path)[1]
         self.path = path
-        print path
+        #print path
         self.n = n
         self.data = None
-        self.metadata = self._parseMD()
+        self.metadata = self.parseMD()
+        if not self.metadata:
+            self.name = self.name + ' (No Metadata Found)'
         return
 
-    def _parseMD(self):
+    def parseMD(self):
         '''Opens the associated .metadata file and parses the information.
 
         If no such file exists, the metadata is left empty.
@@ -68,7 +69,7 @@ class Image(object):
         if self.data is None and self.n != -1:
             fo = fabio.open(self.path)
             self.data = fo.data
-        return
+            return
 
 class ImageCache(HasTraits, object):
     '''An image cache that contains at most 3 Image objects.
@@ -139,11 +140,16 @@ class ImageCache(HasTraits, object):
 
     def clear(self):
         '''Deloads the current images, and replaces them with dummy Images.'''
-        while True:
-            try:
-                self.cache.pop().data = None
-            except IndexError:
-                break
         for i in range(3):
-            self.cache.append(Image(-1, ''))
+            self.append(Image(-1, ''))
         return
+
+if __name__=='__main__':
+    cache = ImageCache()
+    for i in range(3):
+        cache.append(Image(i, ''))
+
+    print cache
+    cache.clear()
+    print cache
+

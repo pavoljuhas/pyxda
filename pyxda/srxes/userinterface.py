@@ -75,7 +75,7 @@ class UserInterface(HasTraits):
                 show_labels=False,
                   ),
             resizable = True,
-            height = 0.96, width = 1.0,
+            height = 0.95, width = 1.0,
             title = 'SrXes',
             icon = ICON
             )
@@ -118,6 +118,10 @@ class UserInterface(HasTraits):
         if pic.metadata:
             for key in pic.metadata.keys():
                 setattr(self.mdpanel, key, pic.metadata[key])
+        else:
+            for key in self.mdpanel.editable_traits():
+                if key != 'name':
+                    setattr(self.mdpanel, key, '')
         return
 
     @on_trait_change('process.display.filenum', post_init=True)
@@ -125,7 +129,7 @@ class UserInterface(HasTraits):
         '''Handles interactions with the RR plots. When a point is hovered
         over, its filename is displayed in the control panel.
         '''
-        print 'filenum changed'
+        #print 'filenum changed'
         n = self.process.display.filenum
         if n == -1:
             self.cpanel.message = ''
@@ -140,7 +144,6 @@ class UserInterface(HasTraits):
         self.process.jobqueue.put(['updatecmap', [self.cpanel.colormap]])
         return
 
-    # TODO: Update
     def createImagePanel(self):
         '''Creates the image panel and fills it with the associated plots. 
         The plots included are the image plot, histogram, and 1D plot. Data
@@ -165,7 +168,7 @@ class UserInterface(HasTraits):
         self.imagepanel.get_preferred_size()
         self.imagepanel.invalidate_draw()
         return
-
+    
     def updateRRPanel(self, choice):
         '''Fills the rrpanel with new RR plots.
 
