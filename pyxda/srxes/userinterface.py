@@ -75,7 +75,7 @@ class UserInterface(HasTraits):
                 show_labels=False,
                   ),
             resizable = True,
-            height = 0.95, width = 1.0,
+            height = 0.95*800, width = 1.0*1280,
             title = 'SrXes',
             icon = ICON
             )
@@ -122,6 +122,8 @@ class UserInterface(HasTraits):
             for key in self.mdpanel.editable_traits():
                 if key != 'name':
                     setattr(self.mdpanel, key, '')
+        
+        self.imagepanel.invalidate_and_redraw()
         return
 
     @on_trait_change('process.display.filenum', post_init=True)

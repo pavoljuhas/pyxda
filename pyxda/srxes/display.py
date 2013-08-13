@@ -178,7 +178,10 @@ class Display(HasTraits, object):
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
             add_default_grids(plot)
-            plot.value_range.low = 0
+            plot.value_range.low = 'auto'
+            plot.value_range.high = 'auto'
+            plot.index_range.low = 'auto'
+            plot.index_range.high = 'auto'
             plot.value_axis.title = "Histogram"
             self.appendHistogramTools(plot)
             
@@ -209,7 +212,10 @@ class Display(HasTraits, object):
             plot.x_axis.visible = False
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
-            plot.value_range.low = 0
+            plot.value_range.low = 'auto'
+            plot.value_range.high = 'auto'
+            plot.index_range.low = 'auto'
+            plot.index_range.high = 'auto'
             self.append1DCutTools(plot)
         else:
             index = range(image.data.shape[1])

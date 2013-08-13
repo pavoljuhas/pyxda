@@ -100,7 +100,6 @@ class ProcessCenter(HasTraits):
         
         path -- the filepath of the image
 
-        No return value.
         Displays warning if there is no associated metadata file
         named path.metadata.
         '''
