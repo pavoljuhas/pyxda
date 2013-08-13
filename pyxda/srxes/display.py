@@ -269,7 +269,6 @@ class Display(HasTraits, object):
         self.colorbar = colorbar
         return
     
-    # FIXME: The Pan Tool does not work.
     def appendHistogramTools(self, plot):
         '''Attach zoom, pan, and rangeselect to plot.
 
@@ -278,7 +277,6 @@ class Display(HasTraits, object):
 
         plot -- instance of Plot to be given tools
         '''
-        plot.tools.append(PanTool(plot))
         zoom = ZoomTool(component=plot, tool_mode="box", always_on=False,
                             color='transparent',
                             zoom_factor=1.25, pointer='sizing',
@@ -293,6 +291,7 @@ class Display(HasTraits, object):
         
         my_plot = plot.plots["Histogram"][0]
 
+        my_plot.tools.append(PanTool(plot))
         self.range_selection = RangeSelection(component=my_plot)
         self.sync_trait('_selection', self.range_selection)
 
