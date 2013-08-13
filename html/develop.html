@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Source Code Documentation &mdash; PyXDA 0.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyXDA 0.3 documentation" href="index.html" />
+    <link rel="prev" title="User Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="User Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyXDA 0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="source-code-documentation">
+<h1>Source Code Documentation<a class="headerlink" href="#source-code-documentation" title="Permalink to this headline">¶</a></h1>
+<p>The casual user need not read over this section. It is intended for anyone
+who would like to develop SrXes further or is curious about how the program
+works.</p>
+<div class="section" id="userinterface-py">
+<h2>userinterface.py<a class="headerlink" href="#userinterface-py" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pyxda.srxes.controlpanel">
+<span id="controlpanel-py"></span><h2>controlpanel.py<a class="headerlink" href="#module-pyxda.srxes.controlpanel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyxda.srxes.controlpanel.ControlPanel">
+<em class="property">class </em><tt class="descclassname">pyxda.srxes.controlpanel.</tt><tt class="descname">ControlPanel</tt><a class="headerlink" href="#pyxda.srxes.controlpanel.ControlPanel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains tools to interact with the data set.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyxda.srxes.controlpanel.MetadataPanel">
+<em class="property">class </em><tt class="descclassname">pyxda.srxes.controlpanel.</tt><tt class="descname">MetadataPanel</tt><a class="headerlink" href="#pyxda.srxes.controlpanel.MetadataPanel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains metadata about the currently viewed image.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="processcenter-py">
+<h2>processcenter.py<a class="headerlink" href="#processcenter-py" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="display-py">
+<h2>display.py<a class="headerlink" href="#display-py" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pyxda.srxes.image">
+<span id="image-py"></span><h2>image.py<a class="headerlink" href="#module-pyxda.srxes.image" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyxda.srxes.image.Image">
+<em class="property">class </em><tt class="descclassname">pyxda.srxes.image.</tt><tt class="descname">Image</tt><big>(</big><em>n</em>, <em>path</em><big>)</big><a class="headerlink" href="#pyxda.srxes.image.Image" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object that contains relevant information about a .tif image.</p>
+<p>Each image has a name, filepath, n (index), data, and metadata.
+Dummy images can be created as placeholders. They only have a name
+(2D Image), blank metadata, n (-1), and data. They are instantiated if
+the initialized path is an empty string.</p>
+<dl class="method">
+<dt id="pyxda.srxes.image.Image.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.image.Image.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from the .tif file and stores it in a numpy array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyxda.srxes.image.Image.parseMD">
+<tt class="descname">parseMD</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.image.Image.parseMD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the associated .metadata file and parses the information.</p>
+<p>If no such file exists, the metadata is left empty.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyxda.srxes.image.ImageCache">
+<em class="property">class </em><tt class="descclassname">pyxda.srxes.image.</tt><tt class="descname">ImageCache</tt><a class="headerlink" href="#pyxda.srxes.image.ImageCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>An image cache that contains at most 3 Image objects.</p>
+<p>The cache ensures that 3 images are loaded into memory at a given time.
+These include the current, next, and previous images. This allows 
+faster plotting of images. The cache is a deque of size 3 with modified
+pop/append methods.</p>
+<dl class="method">
+<dt id="pyxda.srxes.image.ImageCache.append">
+<tt class="descname">append</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#pyxda.srxes.image.ImageCache.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends the new image and deloads the image that is removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyxda.srxes.image.ImageCache.appendleft">
+<tt class="descname">appendleft</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#pyxda.srxes.image.ImageCache.appendleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends left the new image and deloads the image that is removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyxda.srxes.image.ImageCache.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.image.ImageCache.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deloads the current images, and replaces them with dummy Images.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyxda.srxes.image.ImageCache.pop">
+<tt class="descname">pop</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.image.ImageCache.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pops an Image from the right and places a dummy image on left.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyxda.srxes.image.ImageCache.popleft">
+<tt class="descname">popleft</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.image.ImageCache.popleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pops an Image from the left and places a dummy image on right.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyxda.srxes.image.ImageCache.reverse">
+<tt class="descname">reverse</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.image.ImageCache.reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverses the cache.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyxda.srxes.loadthread">
+<span id="loadthread-py"></span><h2>loadthread.py<a class="headerlink" href="#module-pyxda.srxes.loadthread" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyxda.srxes.loadthread.LoadThread">
+<em class="property">class </em><tt class="descclassname">pyxda.srxes.loadthread.</tt><tt class="descname">LoadThread</tt><big>(</big><em>queue</em>, <em>dirpath</em><big>)</big><a class="headerlink" href="#pyxda.srxes.loadthread.LoadThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>A separate thread that searches the given directory for .tif images.
+For each image, it sends a request to the ProcessCenter to store the
+image. A thread is created and run each time a directory is chosen.</p>
+<p>NOTE: Images are not loaded into memory but their paths are stored so 
+loading can be performed at a later time.</p>
+<dl class="method">
+<dt id="pyxda.srxes.loadthread.LoadThread.initLive">
+<tt class="descname">initLive</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.loadthread.LoadThread.initLive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of valid .tif files in the directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyxda.srxes.loadthread.LoadThread.livemode">
+<tt class="descname">livemode</tt><big>(</big><big>)</big><a class="headerlink" href="#pyxda.srxes.loadthread.LoadThread.livemode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends image requests to the ProcessCenter for each image.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Source Code Documentation</a><ul>
+<li><a class="reference internal" href="#userinterface-py">userinterface.py</a></li>
+<li><a class="reference internal" href="#module-pyxda.srxes.controlpanel">controlpanel.py</a></li>
+<li><a class="reference internal" href="#processcenter-py">processcenter.py</a></li>
+<li><a class="reference internal" href="#display-py">display.py</a></li>
+<li><a class="reference internal" href="#module-pyxda.srxes.image">image.py</a></li>
+<li><a class="reference internal" href="#module-pyxda.srxes.loadthread">loadthread.py</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">User Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/develop.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="User Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">PyXDA 0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Michael Saltzman, Mark Lange.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
