@@ -79,7 +79,7 @@ class Display(HasTraits, object):
             self.jobqueue.put(['changendx', [sel_indices[-1]]])
             #print sel_indices[-1]
         if hover_indices:
-            self.filenum = hover_indices[0]
+            self.filenum = int(hover_indices[0])
             #print 'self.filenum', self.filenum
         else:
             self.filenum = -1
