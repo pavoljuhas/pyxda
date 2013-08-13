@@ -1,4 +1,0 @@
-The main contributors to the SrXes software were:
-
-	Michael Saltzman
-	Mark Lange
