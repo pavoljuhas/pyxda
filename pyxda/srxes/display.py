@@ -111,7 +111,7 @@ class Display(HasTraits, object):
         else:
             plot.data.set_data('imagedata', image.data)
         plot.aspect_ratio = float(image.data.shape[1]) / image.data.shape[0]
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def plotRRMap(self, ydata, title, plot=None):
@@ -140,7 +140,7 @@ class Display(HasTraits, object):
             self.appendRRTools(plot)
         else:
             self.setData(ydata, None, plot)
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def setData(self, ydata, xdata, plot):
@@ -190,7 +190,7 @@ class Display(HasTraits, object):
             index = np.delete(data[1], data[1].size-1)
             values = data[0]
             self.setData(values, index, plot)
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def plot1DCut(self, image, plot=None):
@@ -221,7 +221,7 @@ class Display(HasTraits, object):
             index = range(image.data.shape[1])
             values = image.data.mean(axis=0)
             self.setData(values, index, plot)
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def appendImageTools(self, plot):
