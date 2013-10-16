@@ -54,8 +54,6 @@ class ProcessCenter(HasTraits):
         self.add_trait('pic', Instance(Image))
         self.add_trait('hasImage', Bool())
 
-        self.on_trait_change(self.plotData, 'pic', dispatch='new')
-        
         self.initDisplay()
         self.initData()
         return
@@ -90,6 +88,7 @@ class ProcessCenter(HasTraits):
         pic.data = np.zeros((2048, 2048))
         self.pic = pic
         self.plotData()
+        self.on_trait_change(self.plotData, 'pic', dispatch='new')
         return
 
     ##############################################
@@ -100,7 +99,6 @@ class ProcessCenter(HasTraits):
         
         path -- the filepath of the image
 
-        No return value.
         Displays warning if there is no associated metadata file
         named path.metadata.
         '''

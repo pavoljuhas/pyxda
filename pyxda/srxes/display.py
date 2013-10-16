@@ -79,7 +79,7 @@ class Display(HasTraits, object):
             self.jobqueue.put(['changendx', [sel_indices[-1]]])
             #print sel_indices[-1]
         if hover_indices:
-            self.filenum = hover_indices[0]
+            self.filenum = int(hover_indices[0])
             #print 'self.filenum', self.filenum
         else:
             self.filenum = -1
@@ -111,7 +111,7 @@ class Display(HasTraits, object):
         else:
             plot.data.set_data('imagedata', image.data)
         plot.aspect_ratio = float(image.data.shape[1]) / image.data.shape[0]
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def plotRRMap(self, ydata, title, plot=None):
@@ -140,7 +140,7 @@ class Display(HasTraits, object):
             self.appendRRTools(plot)
         else:
             self.setData(ydata, None, plot)
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def setData(self, ydata, xdata, plot):
@@ -178,7 +178,10 @@ class Display(HasTraits, object):
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
             add_default_grids(plot)
-            plot.value_range.low = 0
+            plot.value_range.low = 'auto'
+            plot.value_range.high = 'auto'
+            plot.index_range.low = 'auto'
+            plot.index_range.high = 'auto'
             plot.value_axis.title = "Histogram"
             self.appendHistogramTools(plot)
             
@@ -187,7 +190,7 @@ class Display(HasTraits, object):
             index = np.delete(data[1], data[1].size-1)
             values = data[0]
             self.setData(values, index, plot)
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def plot1DCut(self, image, plot=None):
@@ -209,13 +212,16 @@ class Display(HasTraits, object):
             plot.x_axis.visible = False
             plot.bgcolor = "white"
             plot.fixed_preferred_size = (100, 30)
-            plot.value_range.low = 0
+            plot.value_range.low = 'auto'
+            plot.value_range.high = 'auto'
+            plot.index_range.low = 'auto'
+            plot.index_range.high = 'auto'
             self.append1DCutTools(plot)
         else:
             index = range(image.data.shape[1])
             values = image.data.mean(axis=0)
             self.setData(values, index, plot)
-        plot.invalidate_draw()
+        plot.invalidate_and_redraw()
         return plot
 
     def appendImageTools(self, plot):
@@ -263,7 +269,6 @@ class Display(HasTraits, object):
         self.colorbar = colorbar
         return
     
-    # FIXME: The Pan Tool does not work.
     def appendHistogramTools(self, plot):
         '''Attach zoom, pan, and rangeselect to plot.
 
@@ -272,7 +277,6 @@ class Display(HasTraits, object):
 
         plot -- instance of Plot to be given tools
         '''
-        plot.tools.append(PanTool(plot))
         zoom = ZoomTool(component=plot, tool_mode="box", always_on=False,
                             color='transparent',
                             zoom_factor=1.25, pointer='sizing',
@@ -287,6 +291,7 @@ class Display(HasTraits, object):
         
         my_plot = plot.plots["Histogram"][0]
 
+        my_plot.tools.append(PanTool(plot))
         self.range_selection = RangeSelection(component=my_plot)
         self.sync_trait('_selection', self.range_selection)
 
